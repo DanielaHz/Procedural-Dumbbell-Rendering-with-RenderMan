@@ -1,4 +1,6 @@
-import prman
+import sys
+
+import prman, os
 import ProcessCommandLine as cl
 
 # Main rendering routine
@@ -11,13 +13,14 @@ def main(
     height=720,
     integrator="PxrPathTracer",
     integratorParams={},
-):
-    print("shading rate {} pivel variance {} using {} {}".format(shadingrate, pixelvar, integrator, integratorParams))
+):      
+    print("shading rate {} pixel variance {} using {} {}".format(shadingrate, pixelvar, integrator, integratorParams))
     ri = prman.Ri()  # create an instance of the RenderMan interface
 
     ri.Begin(filename)
-    ri.Option("searchpath", {"string archive": "./assets/:@"}) #looking for the model in the assets folder
-    ri.Option("searchpath", {"string texture": "./textures/:@"}) # looking fro textures in the folder textures
+    ri.Display("neoprene_shader.exr", "file", "rgba")
+    ri.Option("searchpath", {"string archive": "./assets/:@"})
+    ri.Option("searchpath", {"string texture": "./textures/:@"})
 
     ri.Display("rgb.exr", "it", "rgba")
     ri.Format(width, height, 1)
@@ -31,8 +34,8 @@ def main(
     
     ri.Projection(ri.PERSPECTIVE, {ri.FOV: fov})
 
-    ri.Translate(0.5, -1.0, 10.0)
-    ri.Rotate(50, 0, 1, 0)
+    ri.Translate(2.5, -1.0, 4.5)
+    ri.Rotate(-25, 0, 1, 0)
     
     ri.WorldBegin()
     #######################################################################
@@ -42,8 +45,8 @@ def main(
     ri.AttributeBegin()
     ri.Declare("domeLight", "string")
     ri.Rotate(-90, 1, 0, 0)
-    ri.Rotate(90, 0, 0, 1)
-    ri.Attribute("visibility", {"int camera": [0]})
+    ri.Rotate(100, 0, 0, 1)
+    ri.Attribute("visibility", {"int indirect": [0], "int transmission": [0], "int camera": [0]})
     ri.Light("PxrDomeLight", "domeLight", {"string lightColorMap": "Luxo-Jr_4000x2000.tex"})
     ri.AttributeEnd()
     ri.TransformEnd()
@@ -61,21 +64,68 @@ def main(
     ri.TransformEnd()
     ri.AttributeEnd()
     
-    # Dumbbell model 
+    # Dumbbell bar
     ri.AttributeBegin()
-    ri.Attribute("identifier", {"name": "dumbbell"})
+    ri.Attribute("identifier", {"name": "dumbbell-bar"})
     ri.TransformBegin()
-    ri.Translate(0.0, -0.5, 0.0) 
-    ri.Rotate(10, 0, 1, 0)  
-    ri.Bxdf("PxrDiffuse", "dumbbell_material", {"color diffuseColor": [0.6, 0.1, 0.5]})
-    ri.ReadArchive("model5.rib")
+    ri.Translate(0.0, 0.0, 0.0) 
+    ri.Rotate(0, 0, 1, 0)  
+    ri.Pattern("stainless_steel", "stainless_steel", {})
+    ri.Bxdf(
+        "PxrSurface",
+        "plastic",
+        {
+            "reference color diffuseColor": ["stainless_steel:Cout"],
+        },
+    )
+    ri.ReadArchive("2.rib")
+    ri.TransformEnd()
+    ri.AttributeEnd()
+     
+    # Dumbbell right weight 
+    ri.AttributeBegin()
+    ri.Attribute("identifier", {"name": "dumbbell-left"})
+    ri.TransformBegin()
+    ri.Translate(0.0, 0.0, 0.0) 
+    ri.Rotate(0, 0, 1, 0)  
+    ri.Pattern("neoprene", "neoprene", {})
+    ri.Bxdf(
+        "PxrSurface",
+        "plastic",
+        {
+            "reference color diffuseColor": ["neoprene:Cout"],
+        },
+    )
+    ri.ReadArchive("3.rib")
     ri.TransformEnd()
     ri.AttributeEnd()
     
+    # Dumbbell left weight 
+    ri.AttributeBegin()
+    ri.Attribute("identifier", {"name": "dumbbell-left"})
+    ri.TransformBegin()
+    ri.Translate(0.0, 0.0, 0.0) 
+    ri.Rotate(0, 0, 1, 0)  
+    ri.Pattern("neoprene", "neoprene", {})
+    ri.Bxdf(
+        "PxrSurface",
+        "plastic",
+        {
+            "reference color diffuseColor": ["neoprene:Cout"],
+        },
+    )
+    ri.ReadArchive("1.rib")
+    ri.TransformEnd()
+    ri.AttributeEnd()
+
+
     ri.WorldEnd()
     ri.End()
 
 if __name__ == "__main__":
+
+    cl.checkAndCompileShader("shaders/neoprene")
+    cl.checkAndCompileShader("shaders/stainless_steel")
     cl.ProcessCommandLine("testScenes.rib")
     main(
         cl.filename,

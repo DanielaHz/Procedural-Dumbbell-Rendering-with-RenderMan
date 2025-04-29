@@ -1,4 +1,7 @@
 import argparse
+import os
+import sys
+import sys, os.path, subprocess
 
 filename = "default.rib"
 integratorParams = {"int numLightSamples": [1], "int numBxdfSamples": [1], "int maxIndirectBounces": [4]}
@@ -72,3 +75,14 @@ def ProcessCommandLine(_filename):
     if args.st:
         integrator = "PxrVisualizer"
         integratorParams = {"int wireframe": [1], "string style": ["st"]}
+
+def checkAndCompileShader(shader):
+    if (
+        os.path.isfile(shader + ".oso") != True
+        or os.stat(shader + ".osl").st_mtime - os.stat(shader + ".oso").st_mtime > 0
+    ):
+        print("compiling shader %s" % (shader))
+        try:
+            subprocess.check_call(["oslc", shader + ".osl"])
+        except subprocess.CalledProcessError:
+            sys.exit("shader compilation failed")

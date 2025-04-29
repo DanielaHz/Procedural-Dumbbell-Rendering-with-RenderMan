@@ -1,0 +1,40 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader neoprene_shader
+param	color	baseColor	0 0 0		%read{2,6} %write{2147483647,-1}
+param	color	wearColor	0.00999999978 0.00999999978 0.00999999978		%read{2,6} %write{2147483647,-1}
+param	float	noiseScale	10		%read{0,0} %write{2147483647,-1}
+param	float	edgeWearAmount	0.5		%read{4,4} %write{2147483647,-1}
+oparam	color	Cout	0 0 0		%read{2147483647,-1} %write{7,7}
+global	point	P	%read{0,0} %write{2147483647,-1}
+global	normal	N	%read{3,3} %write{2147483647,-1}
+local	float	noiseValue	%read{2,2} %write{1,1}
+local	color	noiseColor	%read{7,7} %write{2,2}
+local	float	edgeWear	%read{6,7} %write{5,5}
+local	color	edgeColor	%read{7,7} %write{6,6}
+temp	point	$tmp1	%read{1,1} %write{0,0}
+temp	float	$tmp2	%read{5,5} %write{4,4}
+const	float	$const1	0		%read{4,4} %write{2147483647,-1}
+temp	float	$tmp3	%read{4,4} %write{3,3}
+const	float	$const2	2		%read{5,5} %write{2147483647,-1}
+code ___main___
+# shaders/neoprene.osl:10
+#     float noiseValue = noise(P * noiseScale);
+	mul		$tmp1 P noiseScale 	%filename{"shaders/neoprene.osl"} %line{10} %argrw{"wrr"}
+	noise		noiseValue $tmp1 	%argrw{"wr"}
+# shaders/neoprene.osl:11
+#     color noiseColor = mix(baseColor, wearColor, noiseValue);
+	mix		noiseColor baseColor wearColor noiseValue 	%line{11} %argrw{"wrrr"}
+# shaders/neoprene.osl:14
+#     float edgeWear = pow(smoothstep(0.0, edgeWearAmount, length(N)), 2.0);
+	length		$tmp3 N 	%line{14} %argrw{"wr"}
+	smoothstep	$tmp2 $const1 edgeWearAmount $tmp3 	%argrw{"wrrr"}
+	pow		edgeWear $tmp2 $const2 	%argrw{"wrr"}
+# shaders/neoprene.osl:15
+#     color edgeColor = mix(baseColor, wearColor, edgeWear);
+	mix		edgeColor baseColor wearColor edgeWear 	%line{15} %argrw{"wrrr"}
+# shaders/neoprene.osl:18
+#     Cout = mix(noiseColor, edgeColor, edgeWear);
+	mix		Cout noiseColor edgeColor edgeWear 	%line{18} %argrw{"wrrr"}
+	end

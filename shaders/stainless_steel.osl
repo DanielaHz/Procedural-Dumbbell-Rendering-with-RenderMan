@@ -1,0 +1,18 @@
+shader stainless_steel (
+    color baseBar = color(0.8, 0.8, 0.8), // Color base gris metálico
+    float roughness = 0.1, // Rugosidad baja
+    float reflectivity = 0.9, // Alta reflectividad
+    normal N1 = normalize(Ng), // Normal map
+    output color Cout = 0
+)
+{
+    // Calcular el color base con rugosidad y reflectividad
+    color baseColor = baseBar * (1 - roughness);
+    
+    // Simular reflejos
+    vector R = reflect(I, N1);
+    color reflection2 = trace(P, R);
+    
+    // Combinar el color base con los reflejos
+    Cout = mix(baseColor, reflection2, reflectivity);
+}

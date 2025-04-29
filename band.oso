@@ -1,0 +1,24 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader band
+param	color	C1	0 0 0		%read{2,2} %write{2147483647,-1}
+param	color	C2	0.0199999996 0.0199999996 0.0199999996		%read{2,2} %write{2147483647,-1}
+param	float	noiseScale	50		%read{0,0} %write{2147483647,-1}
+oparam	color	Cout	0 0 0		%read{2147483647,-1} %write{3,3}
+global	point	P	%read{0,0} %write{2147483647,-1}
+local	float	noiseValue	%read{2,2} %write{1,1}
+local	color	noiseColor	%read{3,3} %write{2,2}
+temp	point	$tmp1	%read{1,1} %write{0,0}
+code ___main___
+# shaders/band.osl:9
+#     float noiseValue = noise(P * noiseScale);
+	mul		$tmp1 P noiseScale 	%filename{"shaders/band.osl"} %line{9} %argrw{"wrr"}
+	noise		noiseValue $tmp1 	%argrw{"wr"}
+# shaders/band.osl:10
+#     color noiseColor = mix(C1, C2, noiseValue);
+	mix		noiseColor C1 C2 noiseValue 	%line{10} %argrw{"wrrr"}
+# shaders/band.osl:12
+#     Cout = noiseColor;
+	assign		Cout noiseColor 	%line{12} %argrw{"wr"}
+	end

@@ -1,0 +1,49 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader stainless_steel
+param	color	baseBar	0.800000012 0.800000012 0.800000012		%read{2,2} %write{2147483647,-1}
+param	float	roughness	0.100000001		%read{1,1} %write{2147483647,-1}
+param	float	reflectivity	0.899999976		%read{10,10} %write{2147483647,-1}
+param	normal	N1	0 0 0		%read{4,6} %write{0,0} %derivs %initexpr
+oparam	color	Cout	0 0 0		%read{2147483647,-1} %write{10,10}
+global	point	P	%read{8,8} %write{2147483647,-1} %derivs
+global	vector	I	%read{4,7} %write{2147483647,-1} %derivs
+global	normal	Ng	%read{0,0} %write{2147483647,-1} %derivs
+local	color	baseColor	%read{10,10} %write{2,2}
+local	vector	R	%read{8,8} %write{7,7} %derivs
+local	color	reflection2	%read{10,10} %write{9,9}
+temp	float	$tmp1	%read{2,2} %write{1,1}
+const	float	$const2	1		%read{1,1} %write{2147483647,-1}
+const	string	$const3	"reflect"		%read{3,3} %write{2147483647,-1}
+temp	float	$tmp2	%read{5,5} %write{4,4} %derivs
+temp	float	$tmp3	%read{6,6} %write{5,5} %derivs
+const	float	$const5	2		%read{5,5} %write{2147483647,-1}
+temp	vector	$tmp4	%read{7,7} %write{6,6} %derivs
+temp	int	$tmp5	%read{9,9} %write{8,8}
+code N1
+# shaders/stainless_steel.osl:5
+#     normal N1 = normalize(Ng), // Normal map
+	normalize	N1 Ng 	%filename{"shaders/stainless_steel.osl"} %line{5} %argrw{"wr"}
+code ___main___
+# shaders/stainless_steel.osl:10
+#     color baseColor = baseBar * (1 - roughness);
+	sub		$tmp1 $const2 roughness 	%filename{"shaders/stainless_steel.osl"} %line{10} %argrw{"wrr"}
+	mul		baseColor baseBar $tmp1 	%argrw{"wrr"}
+# shaders/stainless_steel.osl:13
+#     vector R = reflect(I, N1);
+	functioncall	$const3 8 	%line{13} %argrw{"r"}
+# /opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h:212
+# vector reflect (vector I, vector N) { return I - 2*dot(N,I)*N; }
+	dot		$tmp2 N1 I 	%filename{"/opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h"} %line{212} %argrw{"wrr"}
+	mul		$tmp3 $const5 $tmp2 	%argrw{"wrr"}
+	mul		$tmp4 $tmp3 N1 	%argrw{"wrr"}
+	sub		R I $tmp4 	%argrw{"wrr"}
+# shaders/stainless_steel.osl:14
+#     color reflection2 = trace(P, R);
+	trace		$tmp5 P R 	%filename{"shaders/stainless_steel.osl"} %line{14} %argrw{"wrr"} %argderivs{1,2}
+	assign		reflection2 $tmp5 	%argrw{"wr"}
+# shaders/stainless_steel.osl:17
+#     Cout = mix(baseColor, reflection2, reflectivity);
+	mix		Cout baseColor reflection2 reflectivity 	%line{17} %argrw{"wrrr"}
+	end
