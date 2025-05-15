@@ -1,0 +1,94 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader Rubber2
+param	color	baseColor	0.00999999978 0.00999999978 0.00999999978		%read{19,19} %write{2147483647,-1}
+param	color	wearColor	0.0500000007 0.0500000007 0.0500000007		%read{19,19} %write{2147483647,-1}
+param	float	wearAmount	0.200000003		%read{15,15} %write{2147483647,-1}
+param	float	roughness	0.800000012		%read{22,22} %write{2147483647,-1}
+param	float	bumpIntensity	0.200000003		%read{4,4} %write{2147483647,-1}
+oparam	color	diffuseOut	0 0 0		%read{2147483647,-1} %write{20,20}
+oparam	color	specularOut	0.0199999996 0.0199999996 0.0199999996		%read{2147483647,-1} %write{21,21}
+oparam	float	roughOut	0.800000012		%read{2147483647,-1} %write{22,22}
+global	point	P	%read{1,1} %write{2147483647,-1}
+global	normal	N	%read{5,7} %write{2147483647,-1}
+local	point	Pshaded	%read{2,2} %write{1,1}
+local	float	noiseVal	%read{4,4} %write{3,3}
+local	normal	bumpN	%read{10,10} %write{8,8}
+local	vector	Ln	%read{10,10} %write{9,9}
+local	float	NdotL	%read{12,20} %write{11,11}
+local	float	edgeFactor	%read{15,15} %write{14,14}
+local	float	mixFactor	%read{19,19} %write{18,18}
+local	color	finalColor	%read{20,20} %write{19,19}
+const	string	$const1	"object"		%read{1,1} %write{2147483647,-1}
+const	string	$const2	"transform"		%read{0,0} %write{2147483647,-1}
+const	string	$const3	"common"		%read{1,1} %write{2147483647,-1}
+const	string	$const4	"perlin"		%read{3,3} %write{2147483647,-1}
+temp	point	$tmp1	%read{3,3} %write{2,2}
+const	float	$const6	10		%read{2,2} %write{2147483647,-1}
+temp	float	$tmp2	%read{6,6} %write{4,4}
+temp	normal	$tmp3	%read{6,6} %write{5,5}
+temp	normal	$tmp4	%read{7,7} %write{6,6}
+temp	normal	$tmp5	%read{8,8} %write{7,7}
+const	vector	$const7	0 0 1		%read{9,9} %write{2147483647,-1}
+temp	float	$tmp7	%read{11,11} %write{10,10}
+const	float	$const8	0		%read{11,18} %write{2147483647,-1}
+const	float	$const9	1		%read{13,17} %write{2147483647,-1}
+temp	float	$tmp8	%read{13,13} %write{12,12}
+temp	float	$tmp9	%read{14,14} %write{13,13}
+const	float	$const10	2		%read{14,14} %write{2147483647,-1}
+temp	float	$tmp10	%read{17,17} %write{15,15}
+const	string	$const11	"clamp"		%read{16,16} %write{2147483647,-1}
+temp	float	$tmp11	%read{18,18} %write{17,17}
+const	color	$const12	0.0199999996 0.0199999996 0.0199999996		%read{21,21} %write{2147483647,-1}
+code ___main___
+# shaders/rubber2.osl:12
+#     point Pshaded = transform("object", P);
+	functioncall	$const2 2 	%filename{"shaders/rubber2.osl"} %line{12} %argrw{"r"}
+# /opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h:263
+# point  transform (string to, point p)  { return transform("common",to,p); }
+	transform	Pshaded $const3 $const1 P 	%filename{"/opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h"} %line{263} %argrw{"wrrr"}
+# shaders/rubber2.osl:13
+#     float noiseVal = noise("perlin", Pshaded * 10);  // Escalamos para más grano
+	mul		$tmp1 Pshaded $const6 	%filename{"shaders/rubber2.osl"} %line{13} %argrw{"wrr"}
+	noise		noiseVal $const4 $tmp1 	%argrw{"wrr"}
+# shaders/rubber2.osl:14
+#     normal bumpN = normalize(N + bumpIntensity * noiseVal * normalize(N));
+	mul		$tmp2 bumpIntensity noiseVal 	%line{14} %argrw{"wrr"}
+	normalize	$tmp3 N 	%argrw{"wr"}
+	mul		$tmp4 $tmp2 $tmp3 	%argrw{"wrr"}
+	add		$tmp5 N $tmp4 	%argrw{"wrr"}
+	normalize	bumpN $tmp5 	%argrw{"wr"}
+# shaders/rubber2.osl:16
+#     vector Ln = normalize(vector(0, 0, 1));
+	normalize	Ln $const7 	%line{16} %argrw{"wr"}
+# shaders/rubber2.osl:17
+#     float NdotL = max(dot(bumpN, Ln), 0.0);
+	dot		$tmp7 bumpN Ln 	%line{17} %argrw{"wrr"}
+	max		NdotL $tmp7 $const8 	%argrw{"wrr"}
+# shaders/rubber2.osl:19
+#     float edgeFactor = pow(1.0 - abs(NdotL), 2.0);
+	abs		$tmp8 NdotL 	%line{19} %argrw{"wr"}
+	sub		$tmp9 $const9 $tmp8 	%argrw{"wrr"}
+	pow		edgeFactor $tmp9 $const10 	%argrw{"wrr"}
+# shaders/rubber2.osl:20
+#     float mixFactor = clamp(edgeFactor * wearAmount, 0.0, 1.0);
+	mul		$tmp10 edgeFactor wearAmount 	%line{20} %argrw{"wrr"}
+	functioncall	$const11 19 	%argrw{"r"}
+# /opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h:141
+# float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
+	min		$tmp11 $tmp10 $const9 	%filename{"/opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h"} %line{141} %argrw{"wrr"}
+	max		mixFactor $tmp11 $const8 	%argrw{"wrr"}
+# shaders/rubber2.osl:21
+#     color finalColor = mix(baseColor, wearColor, mixFactor);
+	mix		finalColor baseColor wearColor mixFactor 	%filename{"shaders/rubber2.osl"} %line{21} %argrw{"wrrr"}
+# shaders/rubber2.osl:23
+#     diffuseOut = finalColor * NdotL;
+	mul		diffuseOut finalColor NdotL 	%line{23} %argrw{"wrr"}
+# shaders/rubber2.osl:24
+#     specularOut = color(0.02);
+	assign		specularOut $const12 	%line{24} %argrw{"wr"}
+# shaders/rubber2.osl:25
+#     roughOut = roughness;
+	assign		roughOut roughness 	%line{25} %argrw{"wr"}
+	end

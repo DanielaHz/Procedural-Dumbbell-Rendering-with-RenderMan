@@ -1,0 +1,50 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader metalz
+param	float	Ks	1		%meta{string,help,"Specular scaling"}  %read{8,8} %write{2147483647,-1}
+param	color	Cs	0.75 0.75 0.800000012		%meta{string,help,"Base color (nickel color)"}  %read{8,8} %write{2147483647,-1}
+param	float	scale	5		%meta{string,help,"Scale of the noise pattern"}  %read{3,3} %write{2147483647,-1}
+param	float	frequency	5		%meta{string,help,"Frequency of the stripes or veins"}  %read{2147483647,-1} %write{2147483647,-1}
+oparam	color	resultColor	0 0 0		%read{2147483647,-1} %write{9,9}
+global	point	P	%read{1,1} %write{2147483647,-1}
+local	point	p	%read{2,2} %write{1,1}
+local	float	n	%read{5,7} %write{4,6}
+local	float	stripe	%read{9,9} %write{7,7}
+const	string	$const1	"object"		%read{1,1} %write{2147483647,-1}
+const	string	$const2	"transform"		%read{0,0} %write{2147483647,-1}
+const	string	$const3	"common"		%read{1,1} %write{2147483647,-1}
+const	string	$const4	"perlin"		%read{4,4} %write{2147483647,-1}
+const	int	$const5	2		%read{2,2} %write{2147483647,-1}
+temp	float	$tmp1	%read{3,3} %write{2,2}
+temp	float	$tmp2	%read{4,4} %write{3,3}
+temp	float	$tmp3	%read{6,6} %write{5,5}
+const	float	$const7	1		%read{5,5} %write{2147483647,-1}
+const	float	$const8	0.5		%read{6,6} %write{2147483647,-1}
+const	float	$const9	0.200000003		%read{7,7} %write{2147483647,-1}
+const	float	$const10	0.800000012		%read{7,7} %write{2147483647,-1}
+temp	color	$tmp4	%read{9,9} %write{8,8}
+code ___main___
+# shaders/metalz.osl:10
+#     point p = transform("object", P);
+	functioncall	$const2 2 	%filename{"shaders/metalz.osl"} %line{10} %argrw{"r"}
+# /opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h:263
+# point  transform (string to, point p)  { return transform("common",to,p); }
+	transform	p $const3 $const1 P 	%filename{"/opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h"} %line{263} %argrw{"wrrr"}
+# shaders/metalz.osl:13
+#     float n = noise("perlin", p.z * scale);
+	compref		$tmp1 p $const5 	%filename{"shaders/metalz.osl"} %line{13} %argrw{"wrr"}
+	mul		$tmp2 $tmp1 scale 	%argrw{"wrr"}
+	noise		n $const4 $tmp2 	%argrw{"wrr"}
+# shaders/metalz.osl:16
+#     n = (n + 1) * 0.5;
+	add		$tmp3 n $const7 	%line{16} %argrw{"wrr"}
+	mul		n $tmp3 $const8 	%argrw{"wrr"}
+# shaders/metalz.osl:19
+#     float stripe = smoothstep(0.2, 0.8, n);
+	smoothstep	stripe $const9 $const10 n 	%line{19} %argrw{"wrrr"}
+# shaders/metalz.osl:22
+#     resultColor = Ks * Cs * stripe;
+	mul		$tmp4 Ks Cs 	%line{22} %argrw{"wrr"}
+	mul		resultColor $tmp4 stripe 	%argrw{"wrr"}
+	end

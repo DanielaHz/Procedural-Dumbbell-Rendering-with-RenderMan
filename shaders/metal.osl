@@ -1,0 +1,23 @@
+shader metalPattern(
+    float Ks = 1.0 [[ string help = "Specular scaling" ]],
+    color Cs = color(0.75, 0.75, 0.8) [[ string help = "Base color (nickel color)" ]],
+    float scale = 5.0 [[ string help = "Scale of the noise pattern" ]],
+    float frequency = 5.0 [[ string help = "Frequency of the stripes or veins" ]],
+    output color resultColor = 0
+)
+{
+    // Transformar la posición a espacio objeto
+    point p = transform("object", P);
+
+    // Aplicar ruido basado en la coordenada Y, que es la dirección deseada
+    float n = noise("perlin", p.y * scale);
+
+    // Normalizamos el ruido para que esté entre 0 y 1
+    n = (n + 1) * 0.5;  // Esto mapea el ruido a un rango de [0,1]
+
+    // Generar las vetas a partir del ruido, usando smoothstep para suavizar la transición
+    float stripe = smoothstep(0.3, 0.7, n);
+
+    // El resultado final es la mezcla del color base, la escala especular y el patrón de vetas
+    resultColor = Ks * Cs * stripe;
+}

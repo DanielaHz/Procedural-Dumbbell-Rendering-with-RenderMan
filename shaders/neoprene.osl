@@ -1,8 +1,8 @@
 shader neoprene(
     color C1 = color(0.0, 0.0, 0.0), // Color negro
-    color C2 = color(0.01, 0.01, 0.01), // Color ligeramente más claro para el efecto granulado
-    color edgeColor = color(0.01, 0.01, 0.01), // Color para el desgaste en los bordes
-    float noiseScale =70.0, // Escala del ruido
+    color C2 = color(1.0, 1.0, 1.0), // Color ligeramente más claro para el efecto granulado
+    color edgeColor = color(0.05, 0.05, 0.05), // Color para el desgaste en los bordes
+    float noiseScale =50.0, // Escala del ruido
     float edgeWearAmount = 1.0, // Cantidad de desgaste en los bordes
     output color Cout = 0
 )

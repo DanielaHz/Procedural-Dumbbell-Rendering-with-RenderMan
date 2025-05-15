@@ -3,14 +3,14 @@ copyright (c) 1988-2024 Pixar.
 linked Tue Aug 13 20:10:07 2024 PDT @2336968
 build linuxRHEL7_x86-64_gcc93icx232_external_release
 
-Rendered on Tue Apr 29 22:20:54 BST 2025
+Rendered on Thu May 15 21:45:11 BST 2025
 Rendering at 1024x720 pixels, 64 maxsamples
 	"NULL_Ci" (mode = Ci_variance_auto, type = null)
 	"rgb.exr" (mode = Ci,a, type = it)
 
-         Total heap mem: 3332.79 MB
-       Max resident mem: 671.56 MB
-            Page faults: 2
-       Real time:     00:04
-       User time:     00:42
-       Sys time:      00:01
+         Total heap mem: 3384.79 MB
+       Max resident mem: 862.07 MB
+            Page faults: 1
+       Real time:     00:09
+       User time:     03:21
+       Sys time:      00:00

@@ -1,0 +1,21 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader RubberShader
+param	color	baseColor	0.0199999996 0.0199999996 0.0199999996		%read{0,1} %write{2147483647,-1}
+param	float	specularLevel	0.0500000007		%read{1,1} %write{2147483647,-1}
+param	float	roughness	0.699999988		%read{2,2} %write{2147483647,-1}
+oparam	color	diffuseOut	0 0 0		%read{2147483647,-1} %write{0,0}
+oparam	color	specularOut	0 0 0		%read{2147483647,-1} %write{1,1}
+oparam	float	roughOut	0		%read{2147483647,-1} %write{2,2}
+code ___main___
+# shaders/rubber.osl:10
+#     diffuseOut = baseColor;
+	assign		diffuseOut baseColor 	%filename{"shaders/rubber.osl"} %line{10} %argrw{"wr"}
+# shaders/rubber.osl:11
+#     specularOut = baseColor * specularLevel;
+	mul		specularOut baseColor specularLevel 	%line{11} %argrw{"wrr"}
+# shaders/rubber.osl:12
+#     roughOut = roughness;
+	assign		roughOut roughness 	%line{12} %argrw{"wr"}
+	end

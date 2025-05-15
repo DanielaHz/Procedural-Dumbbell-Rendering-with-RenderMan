@@ -1,0 +1,21 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader EdgeWearShader
+param	color	edgeColor	0.100000001 0.100000001 0.100000001		%read{0,1} %write{2147483647,-1}
+param	float	edgeRoughness	0.5		%read{2,2} %write{2147483647,-1}
+param	float	specularLevel	0.0500000007		%read{1,1} %write{2147483647,-1}
+oparam	color	diffuseOut	0 0 0		%read{2147483647,-1} %write{0,0}
+oparam	color	specularOut	0 0 0		%read{2147483647,-1} %write{1,1}
+oparam	float	roughOut	0		%read{2147483647,-1} %write{2,2}
+code ___main___
+# shaders/EdgeWearShader.osl:10
+#     diffuseOut = edgeColor;
+	assign		diffuseOut edgeColor 	%filename{"shaders/EdgeWearShader.osl"} %line{10} %argrw{"wr"}
+# shaders/EdgeWearShader.osl:11
+#     specularOut = edgeColor * specularLevel;  // Usar specularLevel aquí
+	mul		specularOut edgeColor specularLevel 	%line{11} %argrw{"wrr"}
+# shaders/EdgeWearShader.osl:12
+#     roughOut = edgeRoughness;
+	assign		roughOut edgeRoughness 	%line{12} %argrw{"wr"}
+	end

@@ -1,0 +1,20 @@
+shader metalGold(
+    color ForeColor = color(0.93, 0.6, 0.06),
+    color MiddleColor = color(0.651, 0.279, 0.004),
+    color BackColor = color(0.527, 0.246, 0.036),
+    float ForeRoughness = 0.01,
+    float BackRoughness = 0.04,
+    vector Normal = N,
+    output color resultColor = 0
+)
+{
+    float Factor1 = 1.0 - pow(fabs(dot(I, Normal)), 2.0 * 0.465);
+    float Factor2 = clamp(pow(dot(Normal, I), 1.3), 0.0, 1.0);
+    color ForeColorAdjusted = ((1 - Factor1) * ForeColor + MiddleColor * Factor1) * ForeRoughness;
+    color BackColorAdjusted = BackColor * BackRoughness;
+    color MetalColor = ((1 - Factor2) * BackColorAdjusted) + (ForeColorAdjusted * Factor2);
+    float F0 = 0.04;
+    float cosTheta = dot(I, Normal);
+    float fresnelSchlick = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    resultColor = fresnelSchlick * MetalColor;
+}

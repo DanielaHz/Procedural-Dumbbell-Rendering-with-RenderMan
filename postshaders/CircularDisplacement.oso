@@ -1,0 +1,58 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader CircularDisplacement
+param	float	scale	0.100000001		%read{11,11} %write{2147483647,-1}
+param	float	frequency	10		%read{6,6} %write{2147483647,-1}
+param	float	radius	0.5		%read{2147483647,-1} %write{2147483647,-1}
+oparam	point	outP	0 0 0		%read{10,14} %write{0,13} %initexpr
+global	point	P	%read{0,1} %write{14,14}
+local	point	p	%read{2,3} %write{1,1}
+local	float	dist	%read{6,6} %write{5,5}
+local	float	circle	%read{9,11} %write{8,9}
+temp	vector	$tmp1	%read{5,5} %write{4,4}
+const	int	$const1	0		%read{2,2} %write{2147483647,-1}
+temp	float	$tmp2	%read{4,4} %write{2,2}
+const	int	$const2	1		%read{3,3} %write{2147483647,-1}
+temp	float	$tmp3	%read{4,4} %write{3,3}
+const	float	$const3	0		%read{4,4} %write{2147483647,-1}
+temp	float	$tmp4	%read{8,8} %write{7,7}
+temp	float	$tmp5	%read{7,7} %write{6,6}
+const	float	$const4	0.400000006		%read{9,9} %write{2147483647,-1}
+const	float	$const5	0.600000024		%read{9,9} %write{2147483647,-1}
+const	int	$const6	2		%read{10,13} %write{2147483647,-1}
+temp	float	$tmp6	%read{12,12} %write{10,10}
+temp	float	$tmp7	%read{12,12} %write{11,11}
+temp	float	$tmp8	%read{13,13} %write{12,12}
+code outP
+# shaders/CircularDisplacement.osl:5
+#     output point outP = P   // La nueva posición desplazada
+	assign		outP P 	%filename{"shaders/CircularDisplacement.osl"} %line{5} %argrw{"wr"}
+code ___main___
+# shaders/CircularDisplacement.osl:9
+#     point p = P;
+	assign		p P 	%filename{"shaders/CircularDisplacement.osl"} %line{9} %argrw{"wr"}
+# shaders/CircularDisplacement.osl:12
+#     float dist = length(vector(p.x, p.y, 0.0)); // Usamos X y Z, ignoramos la Y para la altura
+	compref		$tmp2 p $const1 	%line{12} %argrw{"wrr"}
+	compref		$tmp3 p $const2 	%argrw{"wrr"}
+	vector		$tmp1 $tmp2 $tmp3 $const3 	%argrw{"wrrr"}
+	length		dist $tmp1 	%argrw{"wr"}
+# shaders/CircularDisplacement.osl:15
+#     float circle = abs(sin(dist * frequency)); // Usamos una función sinusoidal para generar círculos
+	mul		$tmp5 dist frequency 	%line{15} %argrw{"wrr"}
+	sin		$tmp4 $tmp5 	%argrw{"wr"}
+	abs		circle $tmp4 	%argrw{"wr"}
+# shaders/CircularDisplacement.osl:16
+#     circle = smoothstep(0.4, 0.6, circle); // Hacer un suavizado de los bordes del círculo
+	smoothstep	circle $const4 $const5 circle 	%line{16} %argrw{"wrrr"}
+# shaders/CircularDisplacement.osl:19
+#     outP[2] += circle * scale; // Desplazamiento solo en el eje Z
+	compref		$tmp6 outP $const6 	%line{19} %argrw{"wrr"}
+	mul		$tmp7 circle scale 	%argrw{"wrr"}
+	add		$tmp8 $tmp6 $tmp7 	%argrw{"wrr"}
+	compassign	outP $const6 $tmp8 	%argrw{"wrr"}
+# shaders/CircularDisplacement.osl:22
+#     P = outP;
+	assign		P outP 	%line{22} %argrw{"wr"}
+	end

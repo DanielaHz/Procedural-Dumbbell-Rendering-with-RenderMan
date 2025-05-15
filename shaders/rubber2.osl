@@ -1,0 +1,26 @@
+shader Rubber2(
+    color baseColor = color(0.01, 0.01, 0.01),
+    color wearColor = color(0.05, 0.05, 0.05),
+    float wearAmount = 0.2,
+    float roughness = 0.8,
+    float bumpIntensity = 0.2,  // controla la fuerza del bump
+    output color diffuseOut = color(0.0),
+    output color specularOut = color(0.02),
+    output float roughOut = 0.8
+)
+{
+    point Pshaded = transform("object", P);
+    float noiseVal = noise("perlin", Pshaded * 10);  // Escalamos para más grano
+    normal bumpN = normalize(N + bumpIntensity * noiseVal * normalize(N));
+
+    vector Ln = normalize(vector(0, 0, 1));
+    float NdotL = max(dot(bumpN, Ln), 0.0);
+
+    float edgeFactor = pow(1.0 - abs(NdotL), 2.0);
+    float mixFactor = clamp(edgeFactor * wearAmount, 0.0, 1.0);
+    color finalColor = mix(baseColor, wearColor, mixFactor);
+
+    diffuseOut = finalColor * NdotL;
+    specularOut = color(0.02);
+    roughOut = roughness;
+}

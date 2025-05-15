@@ -1,0 +1,66 @@
+##RenderMan RIB
+version 3.04999995
+Display "neoprene_shader.exr" "file" "rgba" 
+Option "searchpath" "string archive" ["./assets/:@"]
+Option "searchpath" "string texture" ["./textures/:@"]
+Display "rgb.exr" "it" "rgba" 
+Format 1024 720 1
+Hider "raytrace" "int incremental" [1]
+ShadingRate 0.5
+PixelVariance 0.00999999978
+Integrator "PxrPathTracer" "integrator" "int numLightSamples" [1] "int numBxdfSamples" [1] "int maxIndirectBounces" [4]
+Option "statistics" "filename" ["stats.txt"]
+Option "statistics" "endofframe" [1]
+Projection "perspective" "uniform float fov" [48]
+Translate 2.5 -1 5
+Rotate -120 0 1 0
+WorldBegin 
+TransformBegin 
+AttributeBegin 
+Declare "domeLight" "string"
+Rotate -170 1 0 0
+Rotate 100 0 0 1
+Attribute "visibility" "int indirect" [1] "int transmission" [1] "int camera" [0]
+Light "PxrDomeLight" "domeLight" "string lightColorMap" ["yoga_room_4k.tex"]
+AttributeEnd 
+TransformEnd 
+AttributeBegin 
+Attribute "identifier" "name" ["floor"]
+Pattern "PxrTexture" "floorTexture" "string filename" ["laminate_floor_diff_4k.tex"]
+Bxdf "PxrSurface" "floorSurface" "reference color diffuseColor" ["floorTexture:resultRGB"]
+TransformBegin 
+Translate 0 1 0
+Polygon "vertex point P" [-10 -1 10 10 -1 10 10 -1 -10 -10 -1 -10]
+TransformEnd 
+AttributeEnd 
+AttributeBegin 
+Attribute "identifier" "name" ["dumbbell-bar"]
+TransformBegin 
+Translate 0 0 0
+Rotate 0 0 1 0
+Pattern "stainless_steel" "stainless_steel" 
+Bxdf "PxrSurface" "steel" "reference color diffuseColor" ["stainless_steel:Cout"]
+ReadArchive "center.rib" 
+TransformEnd 
+AttributeEnd 
+AttributeBegin 
+Attribute "identifier" "name" ["dumbbell-right"]
+TransformBegin 
+Translate 0 0 0
+Rotate 0 0 1 0
+Pattern "RubberShader" "RubberShader" "color baseColor" [0.0199999996 0.0199999996 0.0199999996] "float specularLevel" [0.0500000007] "float roughness" [0.699999988] "float specularPower" [20]
+Bxdf "PxrSurface" "rubberMaterial" "reference color diffuseColor" ["RubberShader:diffuseOut"] "reference color specularFaceColor" ["RubberShader:specularOut"] "reference float specularRoughness" ["RubberShader:roughOut"] "float diffuseGain" [1]
+ReadArchive "right.rib" 
+TransformEnd 
+AttributeEnd 
+AttributeBegin 
+Attribute "identifier" "name" ["dumbbell-left"]
+TransformBegin 
+Translate 0 0 0
+Rotate 0 1 0 0
+Pattern "Rubber2" "Rubber2" "color baseColor" [0.00999999978 0.00999999978 0.00999999978] "color wearColor" [0.0500000007 0.0500000007 0.0500000007] "float wearAmount" [0.200000003] "float roughness" [0.800000012] "float bumpIntensity" [0.600000024]
+Bxdf "PxrSurface" "rubberMaterial" "reference color diffuseColor" ["Rubber2:diffuseOut"] "reference color specularFaceColor" ["Rubber2:specularOut"] "reference float specularRoughness" ["Rubber2:roughOut"]
+ReadArchive "left.rib" 
+TransformEnd 
+AttributeEnd 
+WorldEnd 

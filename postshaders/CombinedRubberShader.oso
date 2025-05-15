@@ -1,0 +1,99 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader CombinedRubberShader
+param	color	baseColor	0.0199999996 0.0199999996 0.0199999996		%read{1,2} %write{2147483647,-1}
+param	color	edgeColor	0.100000001 0.100000001 0.100000001		%read{5,6} %write{2147483647,-1}
+param	color	scratchColor	0.5 0.5 0.5		%read{9,10} %write{2147483647,-1}
+param	float	specularLevel	0.0500000007		%read{2,10} %write{2147483647,-1}
+param	float	roughness	0.699999988		%read{3,3} %write{2147483647,-1}
+param	float	edgeRoughness	0.5		%read{7,7} %write{2147483647,-1}
+param	float	scratchRoughness	0.899999976		%read{11,11} %write{2147483647,-1}
+oparam	color	finalDiffuse	0 0 0		%read{2147483647,-1} %write{17,17}
+oparam	color	finalSpecular	0 0 0		%read{2147483647,-1} %write{21,21}
+oparam	float	finalRoughness	0		%read{2147483647,-1} %write{24,24}
+local	color	baseDiffuse	%read{14,14} %write{1,1}
+local	color	edgeDiffuse	%read{14,14} %write{5,5}
+local	color	scratchDiffuse	%read{16,16} %write{9,9}
+local	color	baseSpecular	%read{18,18} %write{2,2}
+local	color	edgeSpecular	%read{18,18} %write{6,6}
+local	color	scratchSpecular	%read{20,20} %write{10,10}
+local	float	baseRough	%read{22,22} %write{3,3}
+local	float	edgeRough	%read{22,22} %write{7,7}
+local	float	scratchRough	%read{23,23} %write{11,11}
+local	float	edgeMask	%read{14,22} %write{12,12}
+local	float	scratchMask	%read{16,23} %write{13,13}
+const	string	$const1	"RubberShader"		%read{0,0} %write{2147483647,-1}
+const	string	$const2	"EdgeWearShader"		%read{4,4} %write{2147483647,-1}
+const	string	$const3	"ScratchShader"		%read{8,8} %write{2147483647,-1}
+const	float	$const4	0.5		%read{12,13} %write{2147483647,-1}
+temp	color	$tmp1	%read{17,17} %write{14,14}
+temp	color	$tmp2	%read{17,17} %write{16,16}
+const	float	$const6	1		%read{15,23} %write{2147483647,-1}
+temp	color	$tmp3	%read{16,16} %write{15,15}
+temp	color	$tmp4	%read{21,21} %write{18,18}
+temp	color	$tmp5	%read{21,21} %write{20,20}
+temp	color	$tmp6	%read{20,20} %write{19,19}
+temp	float	$tmp7	%read{24,24} %write{22,22}
+temp	float	$tmp8	%read{24,24} %write{23,23}
+code ___main___
+# shaders/combinedShader.osl:43
+#     RubberShader(baseColor, specularLevel, roughness, baseDiffuse, baseSpecular, baseRough);
+	functioncall	$const1 4 	%filename{"shaders/combinedShader.osl"} %line{43} %argrw{"r"}
+# shaders/combinedShader.osl:21
+#         diffuseOut = baseColor;
+	assign		baseDiffuse baseColor 	%line{21} %argrw{"wr"}
+# shaders/combinedShader.osl:22
+#         specularOut = baseColor * specularLevel;
+	mul		baseSpecular baseColor specularLevel 	%line{22} %argrw{"wrr"}
+# shaders/combinedShader.osl:23
+#         roughOut = roughness;
+	assign		baseRough roughness 	%line{23} %argrw{"wr"}
+# shaders/combinedShader.osl:44
+#     EdgeWearShader(edgeColor, edgeRoughness, specularLevel, edgeDiffuse, edgeSpecular, edgeRough);
+	functioncall	$const2 8 	%line{44} %argrw{"r"}
+# shaders/combinedShader.osl:29
+#         diffuseOut = edgeColor;
+	assign		edgeDiffuse edgeColor 	%line{29} %argrw{"wr"}
+# shaders/combinedShader.osl:30
+#         specularOut = edgeColor * specularLevel;
+	mul		edgeSpecular edgeColor specularLevel 	%line{30} %argrw{"wrr"}
+# shaders/combinedShader.osl:31
+#         roughOut = edgeRoughness;
+	assign		edgeRough edgeRoughness 	%line{31} %argrw{"wr"}
+# shaders/combinedShader.osl:45
+#     ScratchShader(scratchColor, scratchRoughness, specularLevel, scratchDiffuse, scratchSpecular, scratchRough);
+	functioncall	$const3 12 	%line{45} %argrw{"r"}
+# shaders/combinedShader.osl:37
+#         diffuseOut = scratchColor;
+	assign		scratchDiffuse scratchColor 	%line{37} %argrw{"wr"}
+# shaders/combinedShader.osl:38
+#         specularOut = scratchColor * specularLevel;
+	mul		scratchSpecular scratchColor specularLevel 	%line{38} %argrw{"wrr"}
+# shaders/combinedShader.osl:39
+#         roughOut = scratchRoughness;
+	assign		scratchRough scratchRoughness 	%line{39} %argrw{"wr"}
+# shaders/combinedShader.osl:48
+#     float edgeMask = 0.5;  // Ajusta según sea necesario
+	assign		edgeMask $const4 	%line{48} %argrw{"wr"}
+# shaders/combinedShader.osl:49
+#     float scratchMask = 0.5;  // Ajusta según sea necesario
+	assign		scratchMask $const4 	%line{49} %argrw{"wr"}
+# shaders/combinedShader.osl:52
+#     finalDiffuse = mix(baseDiffuse, edgeDiffuse, edgeMask) * mix(1, scratchDiffuse, scratchMask);
+	mix		$tmp1 baseDiffuse edgeDiffuse edgeMask 	%line{52} %argrw{"wrrr"}
+	assign		$tmp3 $const6 	%argrw{"wr"}
+	mix		$tmp2 $tmp3 scratchDiffuse scratchMask 	%argrw{"wrrr"}
+	mul		finalDiffuse $tmp1 $tmp2 	%argrw{"wrr"}
+# shaders/combinedShader.osl:53
+#     finalSpecular = mix(baseSpecular, edgeSpecular, edgeMask) * mix(1, scratchSpecular, scratchMask);
+	mix		$tmp4 baseSpecular edgeSpecular edgeMask 	%line{53} %argrw{"wrrr"}
+	assign		$tmp6 $const6 	%argrw{"wr"}
+	mix		$tmp5 $tmp6 scratchSpecular scratchMask 	%argrw{"wrrr"}
+	mul		finalSpecular $tmp4 $tmp5 	%argrw{"wrr"}
+# shaders/combinedShader.osl:54
+#     finalRoughness = mix(baseRough, edgeRough, edgeMask) * mix(1, scratchRough, scratchMask);
+	mix		$tmp7 baseRough edgeRough edgeMask 	%line{54} %argrw{"wrrr"}
+	mix		$tmp8 $const6 scratchRough scratchMask 	%argrw{"wrrr"}
+	mul		finalRoughness $tmp7 $tmp8 	%argrw{"wrr"}
+	end

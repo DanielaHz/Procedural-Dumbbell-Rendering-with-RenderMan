@@ -1,0 +1,13 @@
+shader RubberShader(
+    color baseColor = color(0.02, 0.02, 0.02),
+    float specularLevel = 0.05,
+    float roughness = 0.7,
+    output color diffuseOut = 0,
+    output color specularOut = 0,
+    output float roughOut = 0
+)
+{
+    diffuseOut = baseColor;
+    specularOut = baseColor * specularLevel;
+    roughOut = roughness;
+}

@@ -1,0 +1,13 @@
+shader EdgeWearShader(
+    color edgeColor = color(0.1, 0.1, 0.1),
+    float edgeRoughness = 0.5,
+    float specularLevel = 0.05,  // Declarar specularLevel aquí
+    output color diffuseOut = 0,
+    output color specularOut = 0,
+    output float roughOut = 0
+)
+{
+    diffuseOut = edgeColor;
+    specularOut = edgeColor * specularLevel;  // Usar specularLevel aquí
+    roughOut = edgeRoughness;
+}

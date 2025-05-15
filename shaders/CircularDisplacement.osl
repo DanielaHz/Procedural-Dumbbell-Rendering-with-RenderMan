@@ -1,0 +1,23 @@
+shader CircularDisplacement(
+    float scale = 0.1,      // Controla la intensidad del desplazamiento
+    float frequency = 10.0, // Frecuencia de los círculos
+    float radius = 0.5,     // Radio de los círculos
+    output point outP = P   // La nueva posición desplazada
+)
+{
+    // Obtener las coordenadas de la superficie
+    point p = P;
+    
+    // Calcular la distancia desde el centro (usamos las coordenadas u,v como base)
+    float dist = length(vector(p.x, p.y, 0.0)); // Usamos X y Z, ignoramos la Y para la altura
+
+    // Generar un patrón de círculos a lo largo de la superficie
+    float circle = abs(sin(dist * frequency)); // Usamos una función sinusoidal para generar círculos
+    circle = smoothstep(0.4, 0.6, circle); // Hacer un suavizado de los bordes del círculo
+
+    // Aplicar el desplazamiento en el eje Z basado en el patrón
+    outP[2] += circle * scale; // Desplazamiento solo en el eje Z
+    
+    // Devolver la nueva posición desplazada
+    P = outP;
+}

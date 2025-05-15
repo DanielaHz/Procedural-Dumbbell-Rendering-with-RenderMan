@@ -1,0 +1,28 @@
+shader KnurlingDisplacement(
+    float scale = 0.1,      // Escala del desplazamiento
+    float frequency = 10.0, // Frecuencia del patrón
+    float amplitude = 0.5,  // Altura de las ranuras
+    float region_start = 0.2,  // Región donde empieza el patrón (en valores de 'u')
+    float region_end = 0.8,    // Región donde termina el patrón (en valores de 'u')
+    output point outP = P   // La nueva posición desplazada
+)
+{
+    // Usamos las coordenadas 'u' y 'v' para crear el patrón de desplazamiento
+    float u_coord = u;  // Usamos 'u' como el eje a lo largo de la superficie
+    float v_coord = v;  // Usamos 'v' para la variación a lo largo de la barra
+    
+    // Condición para aplicar el patrón solo dentro de la región especificada
+    if (u_coord > region_start && u_coord < region_end) {
+        // Crear el patrón de desplazamiento en 'u'
+        float displacement = sin(u_coord * frequency) * amplitude;
+        
+        // Escalar el desplazamiento
+        displacement *= scale;
+        
+        // Aplicar el desplazamiento en el eje Z
+        outP[2] += displacement;
+    }
+    
+    // Devolver la nueva posición
+    P = outP;
+}

@@ -1,0 +1,55 @@
+shader CombinedRubberShader(
+    color baseColor = color(0.02, 0.02, 0.02),
+    color edgeColor = color(0.1, 0.1, 0.1),
+    color scratchColor = color(0.5, 0.5, 0.5),
+    float specularLevel = 0.05,
+    float roughness = 0.7,
+    float edgeRoughness = 0.5,
+    float scratchRoughness = 0.9,
+    output color finalDiffuse = 0,
+    output color finalSpecular = 0,
+    output float finalRoughness = 0
+)
+{
+    color baseDiffuse, edgeDiffuse, scratchDiffuse;
+    color baseSpecular, edgeSpecular, scratchSpecular;
+    float baseRough, edgeRough, scratchRough;
+
+    // Función para el shader de caucho
+    void RubberShader(color baseColor, float specularLevel, float roughness, output color diffuseOut, output color specularOut, output float roughOut)
+    {
+        diffuseOut = baseColor;
+        specularOut = baseColor * specularLevel;
+        roughOut = roughness;
+    }
+
+    // Función para el shader de bordes desgastados
+    void EdgeWearShader(color edgeColor, float edgeRoughness, float specularLevel, output color diffuseOut, output color specularOut, output float roughOut)
+    {
+        diffuseOut = edgeColor;
+        specularOut = edgeColor * specularLevel;
+        roughOut = edgeRoughness;
+    }
+
+    // Función para el shader de rayones y desgastes
+    void ScratchShader(color scratchColor, float scratchRoughness, float specularLevel, output color diffuseOut, output color specularOut, output float roughOut)
+    {
+        diffuseOut = scratchColor;
+        specularOut = scratchColor * specularLevel;
+        roughOut = scratchRoughness;
+    }
+
+    // Aplicar shaders individuales
+    RubberShader(baseColor, specularLevel, roughness, baseDiffuse, baseSpecular, baseRough);
+    EdgeWearShader(edgeColor, edgeRoughness, specularLevel, edgeDiffuse, edgeSpecular, edgeRough);
+    ScratchShader(scratchColor, scratchRoughness, specularLevel, scratchDiffuse, scratchSpecular, scratchRough);
+
+    // Declarar máscaras (ejemplo simplificado)
+    float edgeMask = 0.5;  // Ajusta según sea necesario
+    float scratchMask = 0.5;  // Ajusta según sea necesario
+
+    // Combinar resultados usando máscaras
+    finalDiffuse = mix(baseDiffuse, edgeDiffuse, edgeMask) * mix(1, scratchDiffuse, scratchMask);
+    finalSpecular = mix(baseSpecular, edgeSpecular, edgeMask) * mix(1, scratchSpecular, scratchMask);
+    finalRoughness = mix(baseRough, edgeRough, edgeMask) * mix(1, scratchRough, scratchMask);
+}

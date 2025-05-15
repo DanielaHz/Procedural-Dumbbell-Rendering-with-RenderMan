@@ -1,0 +1,21 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader ScratchShader
+param	color	scratchColor	0.5 0.5 0.5		%read{0,1} %write{2147483647,-1}
+param	float	scratchRoughness	0.899999976		%read{2,2} %write{2147483647,-1}
+param	float	specularLevel	0.0500000007		%read{1,1} %write{2147483647,-1}
+oparam	color	diffuseOut	0 0 0		%read{2147483647,-1} %write{0,0}
+oparam	color	specularOut	0 0 0		%read{2147483647,-1} %write{1,1}
+oparam	float	roughOut	0		%read{2147483647,-1} %write{2,2}
+code ___main___
+# shaders/ScratchShader.osl:10
+#     diffuseOut = scratchColor;
+	assign		diffuseOut scratchColor 	%filename{"shaders/ScratchShader.osl"} %line{10} %argrw{"wr"}
+# shaders/ScratchShader.osl:11
+#     specularOut = scratchColor * specularLevel;  // Usar specularLevel aquí
+	mul		specularOut scratchColor specularLevel 	%line{11} %argrw{"wrr"}
+# shaders/ScratchShader.osl:12
+#     roughOut = scratchRoughness;
+	assign		roughOut scratchRoughness 	%line{12} %argrw{"wr"}
+	end
