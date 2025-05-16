@@ -15,36 +15,36 @@ const	string	$const1	"object"		%read{1,1} %write{2147483647,-1}
 const	string	$const2	"transform"		%read{0,0} %write{2147483647,-1}
 const	string	$const3	"common"		%read{1,1} %write{2147483647,-1}
 const	string	$const4	"perlin"		%read{4,4} %write{2147483647,-1}
-const	int	$const5	1		%read{2,2} %write{2147483647,-1}
+const	int	$const5	0		%read{2,2} %write{2147483647,-1}
 temp	float	$tmp1	%read{3,3} %write{2,2}
 temp	float	$tmp2	%read{4,4} %write{3,3}
 temp	float	$tmp3	%read{6,6} %write{5,5}
-const	float	$const6	1		%read{5,5} %write{2147483647,-1}
-const	float	$const7	0.5		%read{6,6} %write{2147483647,-1}
-const	float	$const8	0.300000012		%read{7,7} %write{2147483647,-1}
-const	float	$const9	0.699999988		%read{7,7} %write{2147483647,-1}
+const	float	$const7	1		%read{5,5} %write{2147483647,-1}
+const	float	$const8	0.5		%read{6,6} %write{2147483647,-1}
+const	float	$const9	0.300000012		%read{7,7} %write{2147483647,-1}
+const	float	$const10	0.699999988		%read{7,7} %write{2147483647,-1}
 temp	color	$tmp4	%read{9,9} %write{8,8}
 code ___main___
-# shaders/metal.osl:10
+# shaders/metal.osl:9
 #     point p = transform("object", P);
-	functioncall	$const2 2 	%filename{"shaders/metal.osl"} %line{10} %argrw{"r"}
+	functioncall	$const2 2 	%filename{"shaders/metal.osl"} %line{9} %argrw{"r"}
 # /opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h:263
 # point  transform (string to, point p)  { return transform("common",to,p); }
 	transform	p $const3 $const1 P 	%filename{"/opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h"} %line{263} %argrw{"wrrr"}
-# shaders/metal.osl:13
-#     float n = noise("perlin", p.y * scale);
-	compref		$tmp1 p $const5 	%filename{"shaders/metal.osl"} %line{13} %argrw{"wrr"}
+# shaders/metal.osl:11
+#     float n = noise("perlin", p.x * scale);
+	compref		$tmp1 p $const5 	%filename{"shaders/metal.osl"} %line{11} %argrw{"wrr"}
 	mul		$tmp2 $tmp1 scale 	%argrw{"wrr"}
 	noise		n $const4 $tmp2 	%argrw{"wrr"}
-# shaders/metal.osl:16
+# shaders/metal.osl:14
 #     n = (n + 1) * 0.5;  // Esto mapea el ruido a un rango de [0,1]
-	add		$tmp3 n $const6 	%line{16} %argrw{"wrr"}
-	mul		n $tmp3 $const7 	%argrw{"wrr"}
-# shaders/metal.osl:19
+	add		$tmp3 n $const7 	%line{14} %argrw{"wrr"}
+	mul		n $tmp3 $const8 	%argrw{"wrr"}
+# shaders/metal.osl:17
 #     float stripe = smoothstep(0.3, 0.7, n);
-	smoothstep	stripe $const8 $const9 n 	%line{19} %argrw{"wrrr"}
-# shaders/metal.osl:22
+	smoothstep	stripe $const9 $const10 n 	%line{17} %argrw{"wrrr"}
+# shaders/metal.osl:20
 #     resultColor = Ks * Cs * stripe;
-	mul		$tmp4 Ks Cs 	%line{22} %argrw{"wrr"}
+	mul		$tmp4 Ks Cs 	%line{20} %argrw{"wrr"}
 	mul		resultColor $tmp4 stripe 	%argrw{"wrr"}
 	end

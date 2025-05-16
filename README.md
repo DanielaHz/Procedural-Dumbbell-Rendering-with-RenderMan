@@ -6,9 +6,9 @@ uv run python openModel.py
 
 ## Dumbbell Model Reference
 
-![image](/images/dumbellExample.jpeg)
+![image](/images/ref1.jpg)
 
-![image](/images/progress-dumbbell.png)
+![image](/images/ref2.jpg)
 
 
 ## Intructions to transform textures

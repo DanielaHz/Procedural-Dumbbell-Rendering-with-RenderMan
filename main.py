@@ -20,9 +20,9 @@ def main(
     ########################################################################
     # RENDERMAN SETUP SECTION
     ########################################################################
-    
+
     print("shading rate {} pixel variance {} using {} {}".format(shadingrate, pixelvar, integrator, integratorParams))
-    ri = prman.Ri()  
+    ri = prman.Ri()
 
     ri.Begin(filename)
     ri.Display("neoprene_shader.exr", "file", "rgba")
@@ -43,7 +43,7 @@ def main(
     #######################################################################
     # CAMERA SETUP
     #######################################################################
-    
+
     # Configuración de la cámara
     ri.Projection(ri.PERSPECTIVE, {ri.FOV: fov})
 
@@ -58,31 +58,32 @@ def main(
     #######################################################################
     # LIGHTING SECTION
     #######################################################################
-    
+
     # Light1.Environment Light
     ri.TransformBegin()
     ri.AttributeBegin()
-    ri.Rotate(250, 0, 1, 0)
+    ri.Rotate(50, 1, 0, 0)
+    ri.Rotate(200, 0, 1, 0)
     ri.Declare("domeLight", "string")
     ri.Attribute("visibility", {"int indirect": [1], "int transmission": [1], "int camera": [0]})
     ri.Light("PxrDomeLight", "domeLight", {
-        "string lightColorMap": "gym_01_4k.tex",
-        "float exposure": [0.5] 
+        "string lightColorMap": "small_empty_room_3_4k.tex",
+        "float exposure": [0.1]
     })
     ri.AttributeEnd()
     ri.TransformEnd()
-    
-    # Light2. Key Light    
-    ri.TransformBegin()
-    ri.AttributeBegin()
-    ri.Declare("Light0", "string")
-    ri.Translate(0, 8, -5)
-    ri.Rotate(90, 0, 0, 1) 
-    ri.Rotate(-90, 0, 1, 0)
-    ri.Light("PxrRectLight", "Light0", {"float intensity": 50})
-    ri.AttributeEnd()
-    ri.TransformEnd()
-    
+
+    # # Light2. Key Light
+    # ri.TransformBegin()
+    # ri.AttributeBegin()
+    # ri.Declare("Light0", "string")
+    # ri.Translate(0, 8, -5)
+    # ri.Rotate(90, 0, 0, 1)
+    # ri.Rotate(-90, 0, 1, 0)
+    # ri.Light("PxrRectLight", "Light0", {"float intensity": 10})
+    # ri.AttributeEnd()
+    # ri.TransformEnd()
+
     # Light3. Fill Light
     # ri.TransformBegin()
     # ri.AttributeBegin()
@@ -113,10 +114,11 @@ def main(
     #########
     # FLOOR
     #########
-    
+
     ri.AttributeBegin()
     ri.Attribute("identifier", {"name": "floor"})
-    ri.Bxdf("PxrDiffuse", "grey", {"color diffuseColor": [0.6, 0.6, 0.6]})  # Darker grey for floor
+
+    ri.Bxdf("PxrSurface", "grey", {"color diffuseColor": [0.05, 0.1, 0.3]})  # Darker grey for floor
     ri.TransformBegin()
     ri.Polygon({ri.P: [-50, 0, 50, 50, 0, 50, 50, 0, -50, -50, 0, -50]})
     ri.TransformEnd()
@@ -125,34 +127,35 @@ def main(
     ################
     # DUMBBELL BAR
     ################
-    
+
     ri.AttributeBegin()
-    
+
     # Metalic base for the model
     ri.Attribute("identifier", {"name": "metal-object"})
     ri.TransformBegin()
 
-    ri.Pattern("metalz", "metalPattern1", {
+    ri.Pattern("metalPattern", "metalPattern1", {
         "float Ks": [0.5],
         "color Cs": [0.8, 0.8, 0.8],
-        "float scale": [1.0],          
-        "float frequency": [1.0]  
+        "float scale": [1.0],
+        "float frequency": [1.0]
     })
 
-    ri.Bxdf("PxrSurface", "metalBxdf", {
-        "reference color specularFaceColor": ["metalPattern1:resultColor"],
-        "float diffuseGain": [0.0], 
-        "float specularRoughness": [0.2]  
+    ri.Bxdf("PxrDisney", "stainlessSteelMaterial", {
+        "color baseColor": [0.75, 0.75, 0.75],   # Color base (gris plateado)
+        "float metallic": [1.0],                  # Es completamente metálico
+        "float specular": [1.0],                  # Alta especularidad (reflejos brillantes)
+        "float roughness": [0.1],                 # Baja rugosidad para un acabado pulido y brillante
     })
-    
+
     ri.ReadArchive("dum-center.rib")
     ri.TransformEnd()
     ri.AttributeEnd()
-    
-    ########################
-    # DUMBBELL LEFT WEIGHT
-    ########################
-    
+
+    #######################
+    # DUMBBELL LEFT WEIGHT # improve the uv in this model
+    #######################
+
     ri.AttributeBegin()
     ri.Attribute("identifier", {"name": "dumbbell-left"})
     ri.TransformBegin()
@@ -161,7 +164,7 @@ def main(
 
     # Rubber shader for left dumbbell
     ri.Bxdf("PxrDiffuse", "rubberMaterial", {
-        "color diffuseColor": [0.06, 0.06, 0.06],  # Color base (en este caso rojo)
+        "color diffuseColor": [0.058, 0.060, 0.074],  
     })
     ri.ReadArchive("dum-left.rib")
     ri.TransformEnd()
@@ -170,7 +173,7 @@ def main(
     #########################
     # DUMBBELL RIGHT WEIGHT
     #########################
-    
+
     ri.AttributeBegin()
     ri.Attribute("identifier", {"name": "dumbbell-right"})
     ri.TransformBegin()
@@ -178,7 +181,7 @@ def main(
     ri.Rotate(0, 0, 1, 0)
 
     ri.Bxdf("PxrDiffuse", "rubberMaterial", {
-        "color diffuseColor": [0.06, 0.06, 0.06],  # Color base (en este caso rojo)
+        "color diffuseColor": [0.058, 0.060, 0.074],  
     })
 
     ri.ReadArchive("dum-right.rib")
@@ -191,9 +194,9 @@ def main(
 if __name__ == "__main__":
 
     cl.checkAndCompileShader("shaders/metal")
-  
+
     cl.ProcessCommandLine("testScenes.rib")
-    
+
     main(
         cl.filename,
         cl.args.shadingrate,

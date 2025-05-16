@@ -1,6 +1,7 @@
 import argparse
 import os
 import subprocess
+import sys
 
 filename = "default.rib"
 integratorParams = {"int numLightSamples": [1], "int numBxdfSamples": [1], "int maxPathLength": [4]}

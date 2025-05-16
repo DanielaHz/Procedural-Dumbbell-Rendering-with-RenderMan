@@ -1,0 +1,14 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader Gold
+param	color	ForeColor	0.930000007 0.600000024 0.0599999987		%read{1,1} %write{2147483647,-1}
+oparam	closure color	Metal			%read{2147483647,-1} %write{1,1}
+temp	closure color	$tmp1	%read{1,1} %write{0,0}
+const	string	$const1	"emission"		%read{0,0} %write{2147483647,-1}
+code ___main___
+# shaders/gold.osl:6
+#     Metal = ForeColor * emission();
+	closure		$tmp1 $const1 	%filename{"shaders/gold.osl"} %line{6} %argrw{"wr"}
+	mul		Metal $tmp1 ForeColor 	%argrw{"wrr"}
+	end

@@ -6,11 +6,9 @@ shader metalPattern(
     output color resultColor = 0
 )
 {
-    // Transformar la posición a espacio objeto
     point p = transform("object", P);
 
-    // Aplicar ruido basado en la coordenada Y, que es la dirección deseada
-    float n = noise("perlin", p.y * scale);
+    float n = noise("perlin", p.x * scale);
 
     // Normalizamos el ruido para que esté entre 0 y 1
     n = (n + 1) * 0.5;  // Esto mapea el ruido a un rango de [0,1]

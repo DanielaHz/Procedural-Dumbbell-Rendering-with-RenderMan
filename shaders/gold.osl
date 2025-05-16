@@ -1,0 +1,39 @@
+// ------------ FUNCIONES AUXILIARES ------------
+float microfacet_beckmann(vector normal, vector viewDir, float roughness)
+{
+    float cosTheta = dot(normalize(normal), normalize(viewDir));
+    float denom = roughness * sqrt(max(1.0 - cosTheta * cosTheta, 1e-5));
+    return exp(-pow((1.0 - cosTheta) / roughness, 2.0)) / denom;
+}
+
+// ------------ SHADER PRINCIPAL ------------
+shader Gold(
+    color ForeColor = color(0.93, 0.6, 0.06),
+    color MiddleColor = color(0.651, 0.279, 0.004),
+    color BackColor = color(0.527, 0.246, 0.036),
+    float ForeRoughness = 0.01,
+    float BackRoughness = 0.04,
+    vector Normal = N,
+    output closure color Metal = 0.0
+)
+{
+    // Ajuste de normales e iluminación
+    vector V = -normalize(I); // Dirección de la vista
+    vector Nn = normalize(Normal);
+
+    // Cálculos de factores de mezcla
+    float Factor1 = 1.0 - pow(fabs(dot(I, Nn)), 2.0 * 0.465);
+    float Factor2 = clamp(pow(dot(Nn, I), 1.3), 0.0, 1.0);
+
+    // Reflejos ajustados por microfacet
+    float beckmannFore = microfacet_beckmann(Nn, V, ForeRoughness);
+    float beckmannBack = microfacet_beckmann(Nn, V, BackRoughness);
+
+    color ForeColorMix = ((1 - Factor1) * ForeColor + MiddleColor * Factor1) * beckmannFore;
+    color BackColorMix = BackColor * beckmannBack;
+
+    color MetalColor = (1 - Factor2) * BackColorMix + ForeColorMix * Factor2;
+
+    // Asignamos una respuesta de cierre difuso (puedes usar bsdf si prefieres)
+    Metal = emission(MetalColor);
+}
