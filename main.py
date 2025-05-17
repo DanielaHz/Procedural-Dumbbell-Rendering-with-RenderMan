@@ -11,10 +11,10 @@ def main(
     filename="dumbbell.rib",
     shadingrate=0.5,
     pixelvar=0.01,
-    fov=73.0,
+    fov=48.0,
     width=1024,
     height=720,
-    integrator="PxrPathTracer",
+    integrator="maxIndirectBounces",
     integratorParams={},
 ):
     ########################################################################
@@ -62,14 +62,23 @@ def main(
     # Light1.Environment Light
     ri.TransformBegin()
     ri.AttributeBegin()
-    ri.Rotate(50, 1, 0, 0)
-    ri.Rotate(200, 0, 1, 0)
+    # ri.Rotate(30, 1, 0, 0)
+    # ri.Rotate(0, 0, 1, 0)
+    # ri.Declare("domeLight", "string")
+    # ri.Attribute("visibility", {"int indirect": [1], "int transmission": [1], "int camera": [0]})
+    # ri.Light("PxrDomeLight", "domeLight", {
+    #     "string lightColorMap": "small_empty_room_3_4k.tex",
+    #     "float exposure": [0.2]
+    # })
+
+    ri.Rotate(0, 0, 1, 0)
     ri.Declare("domeLight", "string")
     ri.Attribute("visibility", {"int indirect": [1], "int transmission": [1], "int camera": [0]})
     ri.Light("PxrDomeLight", "domeLight", {
-        "string lightColorMap": "small_empty_room_3_4k.tex",
+        "string lightColorMap": "peppermint_powerplant_2_4k.tex",
         "float exposure": [0.1]
     })
+    
     ri.AttributeEnd()
     ri.TransformEnd()
 
@@ -77,14 +86,14 @@ def main(
     # ri.TransformBegin()
     # ri.AttributeBegin()
     # ri.Declare("Light0", "string")
-    # ri.Translate(0, 8, -5)
+    # ri.Translate(2, 8, -5)
     # ri.Rotate(90, 0, 0, 1)
     # ri.Rotate(-90, 0, 1, 0)
-    # ri.Light("PxrRectLight", "Light0", {"float intensity": 10})
+    # ri.Light("PxrRectLight", "Light0", {"float intensity": 100})
     # ri.AttributeEnd()
     # ri.TransformEnd()
 
-    # Light3. Fill Light
+    # # Light3. Fill Light
     # ri.TransformBegin()
     # ri.AttributeBegin()
     # ri.Declare("Light1", "string")
@@ -133,21 +142,34 @@ def main(
     # Metalic base for the model
     ri.Attribute("identifier", {"name": "metal-object"})
     ri.TransformBegin()
-
-    ri.Pattern("metalPattern", "metalPattern1", {
-        "float Ks": [0.5],
-        "color Cs": [0.8, 0.8, 0.8],
-        "float scale": [1.0],
-        "float frequency": [1.0]
+    
+    ri.Pattern("PxrManifold2D", "cylindricalUV", {
+        "int source": [1],  # 1 = cylindrical mapping
+        "float scaleS": [1.0],   # eje alrededor del objeto
+        "float scaleT": [550.0],  # número de líneas concéntricas
     })
 
-    ri.Bxdf("PxrDisney", "stainlessSteelMaterial", {
-        "color baseColor": [0.75, 0.75, 0.75],   # Color base (gris plateado)
-        "float metallic": [1.0],                  # Es completamente metálico
-        "float specular": [1.0],                  # Alta especularidad (reflejos brillantes)
-        "float roughness": [0.1],                 # Baja rugosidad para un acabado pulido y brillante
+    # Patrón tipo checker (lo usamos como líneas)
+    ri.Pattern("PxrChecker", "checkerPattern", {
+        "reference struct manifold": "cylindricalUV:result",
+        "color colorA": [0.75, 0.75, 0.75],  # color metálico claro
+        "color colorB": [1.0, 1.0, 1.0],  # línea oscura
     })
 
+    # Aplicar como bump para simular los surcos
+    ri.Pattern("PxrBump", "lineBump", {
+        "reference float inputBump": "linePattern:resultR",
+        "float bumpHeight": [10.0],
+    })
+
+    # Material metálico con líneas concéntricas
+    ri.Bxdf("PxrDisney", "revolutionEffect", {
+        "reference color baseColor": "checkerPattern:resultRGB",
+        "float metallic": [1.0],
+        "float roughness": [0.05],
+        "float specular": [1.0],
+    })
+    
     ri.ReadArchive("dum-center.rib")
     ri.TransformEnd()
     ri.AttributeEnd()
@@ -161,11 +183,29 @@ def main(
     ri.TransformBegin()
     ri.Translate(-10, 0, 0)
     ri.Rotate(0, 1, 0, 0)
+    
+    ri.Attribute("displacementbound", {"sphere": 0.1, "coordinatesystem": "shader"})
 
-    # Rubber shader for left dumbbell
-    ri.Bxdf("PxrDiffuse", "rubberMaterial", {
-        "color diffuseColor": [0.058, 0.060, 0.074],  
+    # PxrFractal para generar ruido tipo grano fino
+    ri.Pattern("PxrFractal", "fractalPattern", {
+        "float frequency": [60.0],     # Alta frecuencia = más detalles pequeños
+        "float amplitude": [20.0]       # Ajusta según el efecto deseado
     })
+
+    # PxrBump utilizando el patrón como entrada
+    ri.Pattern("PxrBump", "bumpPattern", {
+        "reference float inputBump": ["fractalPattern:resultF"],
+        "float bumpHeight": [0.01],    # Aumenta si quieres más relieve
+        "int bumpType": [1]            # 0 = screen space
+    })
+
+    ri.Bxdf("PxrSurface", "bumpyMaterial", {
+        "color diffuseColor": [0.05, 0.05, 0.05],  # black rubber
+        "reference normal bumpNormal": ["bumpPattern:resultN"],
+        "float specularFaceColor": [0.1],     # Muy poco brillo
+        "float specularRoughness": [0.4]       # Alta rugosidad para aspecto mate
+    })
+    
     ri.ReadArchive("dum-left.rib")
     ri.TransformEnd()
     ri.AttributeEnd()

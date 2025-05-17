@@ -13,7 +13,7 @@ def main(
     fov=48.0,
     width=1024,
     height=720,
-    integrator="PxrPathTracer",
+    integrator="maxIndirectBounces",
     integratorParams={},
 ):
     ########################################################################
@@ -45,7 +45,7 @@ def main(
     #######################################################################
     
     ri.Projection(ri.PERSPECTIVE, {ri.FOV: fov})
-    ri.Translate(0.0,-2.0, 20.0)
+    ri.Translate(0.0, 1.0, 20.0)
     ri.Rotate(-30, 1,0,0)
     ri.Rotate(-180, 0, 1, 0) # Camera rotation x axis
     ri.WorldBegin()
@@ -57,25 +57,27 @@ def main(
     # Light1.Environment Light
     ri.TransformBegin()
     ri.AttributeBegin()
+    ri.Rotate(0, 0, 1, 0)
     ri.Declare("domeLight", "string")
     ri.Attribute("visibility", {"int indirect": [1], "int transmission": [1], "int camera": [0]})
     ri.Light("PxrDomeLight", "domeLight", {
-        "string lightColorMap": "courtyard_4k.tex",
-        "float exposure": [0.5] 
+        "string lightColorMap": "peppermint_powerplant_2_4k.tex",
+        "float exposure": [0.1]
     })
+    
     ri.AttributeEnd()
     ri.TransformEnd()
     
-    # Light2. Key Light    
-    ri.TransformBegin()
-    ri.AttributeBegin()
-    ri.Declare("Light0", "string")
-    ri.Translate(2, 8, -8)
-    ri.Rotate(45, 1, 0, 0) 
-    ri.Rotate(45, 0, 1, 0)
-    ri.Light("PxrRectLight", "Light0", {"float intensity": 100})
-    ri.AttributeEnd()
-    ri.TransformEnd()
+    # # Light2. Key Light    
+    # ri.TransformBegin()
+    # ri.AttributeBegin()
+    # ri.Declare("Light0", "string")
+    # ri.Translate(2, 8, -8)
+    # ri.Rotate(45, 1, 0, 0) 
+    # ri.Rotate(45, 0, 1, 0)
+    # ri.Light("PxrRectLight", "Light0", {"float intensity": 100})
+    # ri.AttributeEnd()
+    # ri.TransformEnd()
     
     # Light3. Fill Light
     # ri.TransformBegin()
@@ -89,16 +91,16 @@ def main(
     # ri.AttributeEnd()
     # ri.TransformEnd()
 
-    # Light4. Back Light
-    ri.TransformBegin()
-    ri.AttributeBegin()
-    ri.Declare("Light2", "string")
-    ri.Attribute("visibility", {"int camera": 0, "int transmission": 0}) # dont show the light in the final render
-    ri.Translate(6, 3, 0)  # Detrás del sujeto
-    ri.Rotate (270, 0, 1, 0)
-    ri.Light("PxrRectLight", "Light2", {"float intensity":25})
-    ri.AttributeEnd()
-    ri.TransformEnd()
+    # # Light4. Back Light
+    # ri.TransformBegin()
+    # ri.AttributeBegin()
+    # ri.Declare("Light2", "string")
+    # ri.Attribute("visibility", {"int camera": 0, "int transmission": 0}) # dont show the light in the final render
+    # ri.Translate(6, 3, 0)  # Detrás del sujeto
+    # ri.Rotate (270, 0, 1, 0)
+    # ri.Light("PxrRectLight", "Light2", {"float intensity":25})
+    # ri.AttributeEnd()
+    # ri.TransformEnd()
 
     #######################################################################
     # MODEL SECTION
@@ -321,28 +323,28 @@ def main(
     
     
     # ################
-    # # Sphere 10  # Displacemente quizas necesito definir la form ane la que quiero importarlo
+    # # Sphere 10  # Displacemente quizas necesito definir la forma de la que quiero importarlo
     # ################
     
-    ri.AttributeBegin()
-    ri.Attribute("identifier", {"name": "metal-object"})
-    ri.TransformBegin()
+    # ri.AttributeBegin()
+    # ri.Attribute("identifier", {"name": "metal-object"})
+    # ri.TransformBegin()
     
-    ri.Displacement("displaceShader", {
-        "float amplitude": [0.1],
-        "string textureFile": ["bumpTexture.exr"]
-    })
+    # ri.Displacement("displaceShader", {
+    #     "float amplitude": [0.1],
+    #     "string textureFile": ["bumpTexture.exr"]
+    # })
 
-    ri.Bxdf("PxrSurface", "metalSurface", {
-        "color diffuseColor": [0.93, 0.6, 0.06],
-        "color specularColor": [0.5, 1.0, 1.0],
-        "float specularRoughness": [0.1]
-    })
+    # ri.Bxdf("PxrSurface", "metalSurface", {
+    #     "color diffuseColor": [0.93, 0.6, 0.06],
+    #     "color specularColor": [0.5, 1.0, 1.0],
+    #     "float specularRoughness": [0.1]
+    # })
 
-    ri.Translate(-8.0, 2.0, 4.0)
-    ri.Sphere(1.0, -1.0, 1.0, 360.0)  
-    ri.TransformEnd()
-    ri.AttributeEnd()
+    # ri.Translate(-8.0, 2.0, 4.0)
+    # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
+    # ri.TransformEnd()
+    # ri.AttributeEnd()
     
     
     ################
@@ -371,11 +373,6 @@ def main(
 
     # PxrSurface usando bump
     ri.Bxdf("PxrSurface", "bumpyMaterial", {
-        "color diffuseColor": [0.3, 0.3, 0.3],
-        "reference normal bumpNormal": ["bumpPattern:resultN"]
-    })
-
-    ri.Bxdf("PxrSurface", "bumpyMaterial", {
         "color diffuseColor": [0.1, 0.1, 0.1],
         "reference normal bumpNormal": ["bumpPattern:resultN"]
     })
@@ -386,43 +383,135 @@ def main(
     ri.AttributeEnd()
     
     # ################
-    # # Sphere 12
+    # # Sphere 12        "Best rubber shader for dumbbell weights"
     # ################
 
-    # ri.AttributeBegin()
-    # ri.Attribute("identifier", {"name": "metal-object"})
-    # ri.TransformBegin()
-    # ri.Translate(0.0, 2.0, 4.0)
-    # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
-    # ri.TransformEnd()
-    # ri.AttributeEnd()
+    ri.AttributeBegin()
+    ri.Attribute("identifier", {"name": "metal-object"})
+    ri.TransformBegin()
     
-    
-    # ################
-    # # Sphere 13
-    # ################
+    ri.Attribute("displacementbound", {"sphere": 0.1, "coordinatesystem": "shader"})
 
-    # ri.AttributeBegin()
-    # ri.Attribute("identifier", {"name": "metal-object"})
-    # ri.TransformBegin()
-    # ri.Translate(4.0, 2.0, 4.0)
-    # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
-    # ri.TransformEnd()
-    # ri.AttributeEnd()
+    # PxrFractal para generar ruido tipo grano fino
+    ri.Pattern("PxrFractal", "fractalPattern", {
+        "float frequency": [20.0],     # Alta frecuencia = más detalles pequeños
+        "float amplitude": [0.3]       # Ajusta según el efecto deseado
+    })
+
+    # PxrBump utilizando el patrón como entrada
+    ri.Pattern("PxrBump", "bumpPattern", {
+        "reference float inputBump": ["fractalPattern:resultF"],
+        "float bumpHeight": [0.05],    # Aumenta si quieres más relieve
+        "int bumpType": [0]            # 0 = screen space
+    })
+
+    # Asignar el material con el bump aplicado
+    ri.Bxdf("PxrSurface", "bumpyMaterial", {
+        "color diffuseColor": [0.1, 0.1, 0.1],  # Goma negra o gris oscura
+        "reference normal bumpNormal": ["bumpPattern:resultN"],
+        "float specularFaceColor": [0.02],     # Muy poco brillo
+        "float specularRoughness": [0.6]       # Alta rugosidad para aspecto mate
+    })
+    
+    ri.Translate(0.0, 2.0, 4.0)
+    ri.Sphere(1.0, -1.0, 1.0, 360.0)  
+    ri.TransformEnd()
+    ri.AttributeEnd()
+    
+    
+    ################
+    # Sphere 13
+    ################
+
+    ri.AttributeBegin()
+    ri.Attribute("identifier", {"name": "metal-object"})
+    ri.TransformBegin()
+    
+    ri.Pattern("PxrManifold2D", "cylindricalUV", {
+        "int source": [1],  # 1 = cylindrical
+        "float scaleS": [80.0],
+        "float scaleT": [1.0]
+    })
+
+    ri.Pattern("PxrPhasorNoise", "revolutionlines", {
+        "reference struct inputManifold": "cylindricalUV:result.Q",
+        "float frequency": [7.0],
+        "int layers": [1],
+        "float pulseWidth": [0.8],
+    })
+
+    ri.Pattern("PxrBump", "revolutionbump", {
+        "reference float inputBump": "revolutionlines:resultF",
+        "float bumpHeight": [0.1]
+    })
+
+    ri.Bxdf("PxrDisney", "revolutionEffect", {
+        "color baseColor": [0.75, 0.75, 0.75],
+        "reference normal bumpNormal": "revolutionbump:resultN",
+        "float metallic": [1.0],
+        "float specular": [1.0],
+        "float roughness": [0.02],
+       
+    })
+
+    ri.Translate(4.0, 2.0, 4.0)
+    ri.Sphere(1.0, -1.0, 1.0, 360.0)  
+    ri.TransformEnd()
+    ri.AttributeEnd()
     
     
     # ################
     # # Sphere 14
     # ################
 
-    # ri.AttributeBegin()
-    # ri.Attribute("identifier", {"name": "metal-object"})
-    # ri.TransformBegin()
-    # ri.Translate(8.0, 2.0, 4.0)
-    # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
-    # ri.TransformEnd()
-    # ri.AttributeEnd()
-     
+    ri.AttributeBegin()
+    ri.Attribute("identifier", {"name": "metal-object"})
+    ri.TransformBegin()
+
+    ri.Pattern("PxrManifold2D", "cylindricalUV", {
+        "int source": [1],  # 1 = cylindrical mapping
+        "float scaleS": [80.0],   # eje alrededor del objeto
+        "float scaleT": [1.0],  # número de líneas concéntricas
+    })
+
+    # Patrón tipo checker (lo usamos como líneas)
+    ri.Pattern("PxrChecker", "checkerPattern", {
+        "reference struct manifold": "cylindricalUV:result",
+        "color colorA": [0.8, 0.8, 0.8],  # color metálico claro
+        "color colorB": [0.3, 0.3, 0.3],  # línea oscura
+    })
+
+    # Aplicar como bump para simular los surcos
+    ri.Pattern("PxrBump", "lineBump", {
+        "reference float inputBump": "linePattern:resultR",
+        "float bumpHeight": [0.1],
+    })
+
+    # Material metálico con líneas concéntricas
+    ri.Bxdf("PxrDisney", "revolutionEffect", {
+        "reference color baseColor": "checkerPattern:resultRGB",
+        "float metallic": [1.0],
+        "float roughness": [0.05],
+        "float specular": [1.0],
+    })
+
+
+    # # Aplicar material PxrDisney con el bump
+    # ri.Bxdf("PxrDisney", "revolutionEffect", {
+    #     "color baseColor": [0.8, 0.8, 0.2],
+    #     "reference normal bumpNormal": "checkerBump:resultN",  # << DEBE MATCHEAR
+    #     "float metallic": [1.0],
+    #     "float specular": [1.0],
+    #     "float roughness": [0.02],
+    # })
+
+    ri.Translate(8.0, 2.0, 4.0)
+    ri.Sphere(1.0, -1.0, 1.0, 360.0)
+
+    ri.TransformEnd()
+    ri.AttributeEnd()
+
+        
     # ################
     # # Sphere 15
     # ################
