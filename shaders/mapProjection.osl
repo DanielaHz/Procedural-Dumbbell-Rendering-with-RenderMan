@@ -1,0 +1,20 @@
+shader mapProjection(
+    color baseColor = color(0.0, 0.0, 0.0),       
+    color projectionColor = color(1.0, 1.0, 1.0), 
+    string map = "",                             
+    float thresholdLow = 0.2,                     
+    float thresholdHigh = 0.8,                    
+    output color result = 0
+)
+{
+    point Po = transform("object", P);
+    float s = Po[0];
+    float t = Po[1];
+
+    color tex = texture(map, s, t);
+    float val = tex[0];  
+
+    float mixAmount = smoothstep(thresholdLow, thresholdHigh, val);
+
+    result = mix(baseColor, projectionColor, mixAmount);
+}

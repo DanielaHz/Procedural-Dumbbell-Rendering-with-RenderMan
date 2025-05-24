@@ -44,15 +44,14 @@ def main(
     # CAMERA SETUP
     #######################################################################
 
-    # Configuración de la cámara
+    # Camera settings
     ri.Projection(ri.PERSPECTIVE, {ri.FOV: fov})
 
     ri.Translate(0.5, -0.7, 8.0)
     ri.Rotate(-32, 1, 0, 0)
     ri.Rotate(-17, 0, 1, 0)
-    ri.Rotate(180, 0, 1, 0)  # Gira la cámara 180 grados alrededor del eje Y
+    ri.Rotate(180, 0, 1, 0)  
 
-    # World Begin para los objetos de la escena
     ri.WorldBegin()
 
     #######################################################################
@@ -146,7 +145,7 @@ def main(
     ri.Pattern("PxrManifold2D", "cylindricalUV", {
         "int source": [1],  # 1 = cylindrical mapping
         "float scaleS": [1.0],   # eje alrededor del objeto
-        "float scaleT": [550.0],  # número de líneas concéntricas
+        "float scaleT": [500.0],  # número de líneas concéntricas
     })
 
     # Patrón tipo checker (lo usamos como líneas)
@@ -159,7 +158,7 @@ def main(
     # Aplicar como bump para simular los surcos
     ri.Pattern("PxrBump", "lineBump", {
         "reference float inputBump": "linePattern:resultR",
-        "float bumpHeight": [10.0],
+        "float bumpHeight": [1.0],
     })
 
     # Material metálico con líneas concéntricas
@@ -174,9 +173,9 @@ def main(
     ri.TransformEnd()
     ri.AttributeEnd()
 
-    #######################
-    # DUMBBELL LEFT WEIGHT # improve the uv in this model
-    #######################
+    # #######################
+    # # DUMBBELL LEFT WEIGHT # improve the uv in this model
+    # #######################
 
     ri.AttributeBegin()
     ri.Attribute("identifier", {"name": "dumbbell-left"})
@@ -186,10 +185,9 @@ def main(
     
     ri.Attribute("displacementbound", {"sphere": 0.1, "coordinatesystem": "shader"})
 
-    # PxrFractal para generar ruido tipo grano fino
     ri.Pattern("PxrFractal", "fractalPattern", {
-        "float frequency": [60.0],     # Alta frecuencia = más detalles pequeños
-        "float amplitude": [20.0]       # Ajusta según el efecto deseado
+        "float frequency": [60.0],     
+        "float amplitude": [20.0]       
     })
 
     # PxrBump utilizando el patrón como entrada
@@ -206,30 +204,47 @@ def main(
         "float specularRoughness": [0.4]       # Alta rugosidad para aspecto mate
     })
     
-    ri.ReadArchive("dum-left.rib")
+    ri.ReadArchive("left-test-1.rib")
     ri.TransformEnd()
     ri.AttributeEnd()
 
-    #########################
-    # DUMBBELL RIGHT WEIGHT
-    #########################
+    # #########################
+    # # DUMBBELL RIGHT WEIGHT
+    # #########################
+    
+    # ri.AttributeBegin()
+    # ri.Attribute("identifier", {"name": "dumbbell-right"})
+    # ri.TransformBegin()
+    # ri.Translate(-10, 0, 0)
+    # ri.Rotate(0, 1, 0, 0)
+  
+    # ri.Attribute("displacementbound", {"sphere": 0.1, "coordinatesystem": "shader"})
 
-    ri.AttributeBegin()
-    ri.Attribute("identifier", {"name": "dumbbell-right"})
-    ri.TransformBegin()
-    ri.Translate(0.0, 0.0, 0.0)
-    ri.Rotate(0, 0, 1, 0)
+    # ri.Pattern("PxrFractal", "fractalPattern", {
+    #     "float frequency": [60.0],     
+    #     "float amplitude": [20.0]       
+    # })
 
-    ri.Bxdf("PxrDiffuse", "rubberMaterial", {
-        "color diffuseColor": [0.058, 0.060, 0.074],  
-    })
+    # # PxrBump utilizando el patrón como entrada
+    # ri.Pattern("PxrBump", "bumpPattern", {
+    #     "reference float inputBump": ["fractalPattern:resultF"],
+    #     "float bumpHeight": [0.01],    # Aumenta si quieres más relieve
+    #     "int bumpType": [1]            # 0 = screen space
+    # })
 
-    ri.ReadArchive("dum-right.rib")
-    ri.TransformEnd()
-    ri.AttributeEnd()
-
-    ri.WorldEnd()
-    ri.End()
+    # ri.Bxdf("PxrSurface", "bumpyMaterial", {
+    #     "color diffuseColor": [0.05, 0.05, 0.05],  # black rubber
+    #     "reference normal bumpNormal": ["bumpPattern:resultN"],
+    #     "float specularFaceColor": [0.1],     # Muy poco brillo
+    #     "float specularRoughness": [0.4]       # Alta rugosidad para aspecto mate
+    # })
+    
+    # ri.ReadArchive("dum-right-3.rib")
+    # ri.TransformEnd()
+    # ri.AttributeEnd()
+    
+    # ri.WorldEnd()
+    # ri.End()
 
 if __name__ == "__main__":
 

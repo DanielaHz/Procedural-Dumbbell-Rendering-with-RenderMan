@@ -45,7 +45,7 @@ def main(
     #######################################################################
     
     ri.Projection(ri.PERSPECTIVE, {ri.FOV: fov})
-    ri.Translate(0.0, 1.0, 20.0)
+    ri.Translate(0.0, 1.0, 30.0)
     ri.Rotate(-30, 1,0,0)
     ri.Rotate(-180, 0, 1, 0) # Camera rotation x axis
     ri.WorldBegin()
@@ -242,7 +242,7 @@ def main(
     
     
     ################
-    # Sphere 6  NOT AVAILABLE
+    # Sphere 6  NOT AVAILABLE Pxrmetal 
     ################
 
     # ri.AttributeBegin()
@@ -326,25 +326,25 @@ def main(
     # # Sphere 10  # Displacemente quizas necesito definir la forma de la que quiero importarlo
     # ################
     
-    # ri.AttributeBegin()
-    # ri.Attribute("identifier", {"name": "metal-object"})
-    # ri.TransformBegin()
+    ri.AttributeBegin()
+    ri.Attribute("identifier", {"name": "metal-object"})
+    ri.TransformBegin()
     
-    # ri.Displacement("displaceShader", {
-    #     "float amplitude": [0.1],
-    #     "string textureFile": ["bumpTexture.exr"]
-    # })
+    ri.Displacement("displaceShader", {
+        "float amplitude": [0.1],
+        "string textureFile": ["bumpTexture.exr"]
+    })
 
-    # ri.Bxdf("PxrSurface", "metalSurface", {
-    #     "color diffuseColor": [0.93, 0.6, 0.06],
-    #     "color specularColor": [0.5, 1.0, 1.0],
-    #     "float specularRoughness": [0.1]
-    # })
+    ri.Bxdf("PxrSurface", "metalSurface", {
+        "color diffuseColor": [0.93, 0.6, 0.06],
+        "color specularColor": [0.5, 1.0, 1.0],
+        "float specularRoughness": [0.1]
+    })
 
-    # ri.Translate(-8.0, 2.0, 4.0)
-    # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
-    # ri.TransformEnd()
-    # ri.AttributeEnd()
+    ri.Translate(-8.0, 2.0, 4.0)
+    ri.Sphere(1.0, -1.0, 1.0, 360.0)  
+    ri.TransformEnd()
+    ri.AttributeEnd()
     
     
     ################
@@ -434,8 +434,8 @@ def main(
     })
 
     ri.Pattern("PxrPhasorNoise", "revolutionlines", {
-        "reference struct inputManifold": "cylindricalUV:result.Q",
-        "float frequency": [7.0],
+        "reference struct inputManifold": "cylindricalUV:resultS",
+        "float frequency": [4.0],
         "int layers": [1],
         "float pulseWidth": [0.8],
     })
@@ -464,52 +464,45 @@ def main(
     # # Sphere 14
     # ################
 
-    ri.AttributeBegin()
-    ri.Attribute("identifier", {"name": "metal-object"})
-    ri.TransformBegin()
+    # ri.AttributeBegin()
+    # ri.Attribute("identifier", {"name": "metal-object"})
+    # ri.TransformBegin()
 
-    ri.Pattern("PxrManifold2D", "cylindricalUV", {
-        "int source": [1],  # 1 = cylindrical mapping
-        "float scaleS": [80.0],   # eje alrededor del objeto
-        "float scaleT": [1.0],  # número de líneas concéntricas
-    })
-
-    # Patrón tipo checker (lo usamos como líneas)
-    ri.Pattern("PxrChecker", "checkerPattern", {
-        "reference struct manifold": "cylindricalUV:result",
-        "color colorA": [0.8, 0.8, 0.8],  # color metálico claro
-        "color colorB": [0.3, 0.3, 0.3],  # línea oscura
-    })
-
-    # Aplicar como bump para simular los surcos
-    ri.Pattern("PxrBump", "lineBump", {
-        "reference float inputBump": "linePattern:resultR",
-        "float bumpHeight": [0.1],
-    })
-
-    # Material metálico con líneas concéntricas
-    ri.Bxdf("PxrDisney", "revolutionEffect", {
-        "reference color baseColor": "checkerPattern:resultRGB",
-        "float metallic": [1.0],
-        "float roughness": [0.05],
-        "float specular": [1.0],
-    })
-
-
-    # # Aplicar material PxrDisney con el bump
-    # ri.Bxdf("PxrDisney", "revolutionEffect", {
-    #     "color baseColor": [0.8, 0.8, 0.2],
-    #     "reference normal bumpNormal": "checkerBump:resultN",  # << DEBE MATCHEAR
-    #     "float metallic": [1.0],
-    #     "float specular": [1.0],
-    #     "float roughness": [0.02],
+    # # Definir mapeo cilíndrico para las coordenadas UV de la superficie
+    # ri.Pattern("PxrManifold2D", "cylindricalUV", {
+    #     "int source": [1],  # Mapeo cilíndrico
+    #     "float scaleS": [80.0],  # Número de líneas concéntricas alrededor del eje
+    #     "float scaleT": [1.0],   # Variación de la escala en el eje T (vertical)
     # })
 
-    ri.Translate(8.0, 2.0, 4.0)
-    ri.Sphere(1.0, -1.0, 1.0, 360.0)
+    # # Usar un patrón tipo checker para definir las líneas
+    # ri.Pattern("PxrChecker", "checkerPattern", {
+    #     "reference struct manifold": "cylindricalUV:result",  # Conectar el 'manifold' de 'cylindricalUV'
+    #     "color colorA": [0.8, 0.8, 0.8],  # Color metálico claro
+    #     "color colorB": [0.3, 0.3, 0.3],  # Color oscuro para las líneas
+    # })
 
-    ri.TransformEnd()
-    ri.AttributeEnd()
+    # # Aplicar el desplazamiento con la textura de líneas
+    # ri.Attribute("displacementbound", {"line": 0.1, "coordinatesystem": "shader"})
+
+    # ri.Pattern("PxrDisplace", "lineDisplacement", {
+    #     "reference float inputDisplacement": "checkerPattern:resultR",  # Usar el patrón de líneas como entrada para el desplazamiento
+    #     "float displacementHeight": [0.1],  # Definir la altura del desplazamiento (ajustar según sea necesario)
+    # })
+
+    # # Material metálico con el color de las líneas
+    # ri.Bxdf("PxrDisney", "revolutionEffect", {
+    #     "reference color baseColor": "checkerPattern:resultRGB",  # Base del color con el patrón de líneas
+    #     "float metallic": [1.0],  # Material metálico
+    #     "float roughness": [0.05],  # Suavidad de la superficie
+    #     "float specular": [1.0],  # Reflejo especular
+    # }) 
+
+    # ri.Translate(8.0, 2.0, 4.0)
+    # ri.Sphere(1.0, -1.0, 1.0, 360.0)
+
+    # ri.TransformEnd()
+    # ri.AttributeEnd()
 
         
     # ################
@@ -517,21 +510,62 @@ def main(
     # ################
 
     # ri.AttributeBegin()
+
+
+    # # Configurar el identificador y la transformación de la esfera
     # ri.Attribute("identifier", {"name": "metal-object"})
     # ri.TransformBegin()
+
+    # # Definir mapeo cilíndrico para las coordenadas UV de la superficie
+    # ri.Pattern("PxrManifold2D", "cylindricalUV", {
+    #     "int source": [1],  # Mapeo cilíndrico
+    #     "float scaleS": [80.0],  # Número de líneas concéntricas alrededor del eje
+    #     "float scaleT": [1.0],   # Variación de la escala en el eje T (vertical)
+    # })
+
+    # # Usar un patrón tipo checker para definir las líneas
+    # ri.Pattern("PxrChecker", "checkerPattern", {
+    #     "reference struct manifold": "cylindricalUV:result",  # Conectar el 'manifold' de 'cylindricalUV'
+    #     "color colorA": [0.8, 0.8, 0.8],  # Color metálico claro
+    #     "color colorB": [0.3, 0.3, 0.3],  # Color oscuro para las líneas
+    # })
+
+    # # Aplicar el desplazamiento con la textura de líneas
+    # ri.Pattern("PxrDisplace", "lineDisplacement", {
+    #     "reference float inputDisplacement": "checkerPattern:resultR",  # Usar el patrón de líneas como entrada para el desplazamiento
+    #     "float displacementHeight": [0.1],  # Definir la altura del desplazamiento (ajustar según sea necesario)
+    # })
+
+    # # Material metálico con el color de las líneas
+    # ri.Bxdf("PxrDisney", "revolutionEffect", {
+    #     "reference color baseColor": "checkerPattern:resultRGB",  # Base del color con el patrón de líneas
+    #     "float metallic": [1.0],  # Material metálico
+    #     "float roughness": [0.05],  # Suavidad de la superficie
+    #     "float specular": [1.0],  # Reflejo especular
+    # })
+
     # ri.Translate(12.0, 2.0, 4.0)
     # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
     # ri.TransformEnd()
     # ri.AttributeEnd()
     
      
-    # ################
-    # # Sphere 16
-    # ################
+    ################
+    # Sphere 16
+    ################
 
     # ri.AttributeBegin()
     # ri.Attribute("identifier", {"name": "metal-object"})
     # ri.TransformBegin()
+    
+    # # Desplazamiento utilizando el shader KnurlingDisplacement
+    # ri.Displacement("KnurlingDisplacement", 
+    #     "float scale", [0.1],       # Escala del desplazamiento
+    #     "float frequency", [15.0],  # Frecuencia del patrón
+    #     "float amplitude", [0.05],  # Amplitud del patrón
+    #     "float region_start", [0.2],  # Región donde empieza el patrón
+    #     "float region_end", [0.8])    # Región donde termina el patrón
+    
     # ri.Translate(16.0, 2.0, 4.0)
     # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
     # ri.TransformEnd()
@@ -541,13 +575,23 @@ def main(
     # # Sphere 17
     # ################
     
-    # ri.AttributeBegin()
-    # ri.Attribute("identifier", {"name": "metal-object"})
-    # ri.TransformBegin()
-    # ri.Translate(-12.0, 2.0, 8.0)
-    # ri.Sphere(1.0, -1.0, 1.0, 360.0)  
-    # ri.TransformEnd()
-    # ri.AttributeEnd()
+    ri.AttributeBegin()
+    ri.Attribute("identifier", {"name": "metal-object"})
+    ri.TransformBegin()
+    
+    
+    ri.Pattern("PxrChecker", "checkerPattern", {
+        "float frequency": [10.0]
+    })
+    
+    ri.Bxdf("PxrSurface", "debugMaterial", {
+        "reference color diffuseColor": ["checkerPattern:resultRGB"]
+    })
+    
+    ri.Translate(-12.0, 2.0, 8.0)
+    ri.Sphere(1, -1, 1, 360.0)  
+    ri.TransformEnd()
+    ri.AttributeEnd()
     
     
     # ################
@@ -651,7 +695,7 @@ if __name__ == "__main__":
     # cl.checkAndCompileShader("shaders/EdgeWearShader")
     # cl.checkAndCompileShader("shaders/ScratchShader")
     # cl.checkAndCompileShader("shaders/combinedShader")
-    # cl.checkAndCompileShader("shaders/gold")
+    cl.checkAndCompileShader("shaders/KnurlingDisplacement")
 
     cl.ProcessCommandLine("testScenes.rib")
     main(

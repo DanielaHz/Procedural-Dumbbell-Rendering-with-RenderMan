@@ -4,25 +4,26 @@ shader KnurlingDisplacement(
     float amplitude = 0.5,  // Altura de las ranuras
     float region_start = 0.2,  // Región donde empieza el patrón (en valores de 'u')
     float region_end = 0.8,    // Región donde termina el patrón (en valores de 'u')
-    output point outP = P   // La nueva posición desplazada
+    output point outP = P   // La nueva posición desplazada (tipo `point`, no `float`)
 )
 {
-    // Usamos las coordenadas 'u' y 'v' para crear el patrón de desplazamiento
-    float u_coord = u;  // Usamos 'u' como el eje a lo largo de la superficie
-    float v_coord = v;  // Usamos 'v' para la variación a lo largo de la barra
+    float u_coord = u; // Coordenada 'u' en la superficie
+    float v_coord = v; // Coordenada 'v' en la superficie
     
     // Condición para aplicar el patrón solo dentro de la región especificada
     if (u_coord > region_start && u_coord < region_end) {
-        // Crear el patrón de desplazamiento en 'u'
-        float displacement = sin(u_coord * frequency) * amplitude;
+        // Crear el patrón de desplazamiento en 'u' y 'v'
+        float displacement_u = sin(u_coord * frequency) * amplitude;
+        float displacement_v = cos(v_coord * frequency) * amplitude;
         
-        // Escalar el desplazamiento
-        displacement *= scale;
+        // Sumar ambos desplazamientos
+        float total_displacement = displacement_u + displacement_v;
+        total_displacement *= scale;
         
-        // Aplicar el desplazamiento en el eje Z
-        outP[2] += displacement;
+        // Aplica el desplazamiento en el eje Z (el desplazamiento es una alteración en la posición 3D)
+        outP[2] += total_displacement;
     }
-    
-    // Devolver la nueva posición
+
+    // Devolver la nueva posición (asegurándonos de que sea un `point`)
     P = outP;
 }

@@ -1,0 +1,16 @@
+shader CurvatureBasedMix4(
+    color baseColor = color(0.05, 0.05, 0.05),
+    color edgeColor = color(1.0, 0.0, 0.0),
+    color curvatureMap = color(1.0),  // Recibe directamente el resultado evaluado
+    float edgeMin = 0.58,
+    float edgeMax = 0.65,
+    output color result = color(0.0)
+)
+{
+    float curvature = curvatureMap[0];  // Usamos el canal rojo
+
+    if (curvature >= edgeMin && curvature <= edgeMax)
+        result = edgeColor;
+    else
+        result = baseColor;
+}

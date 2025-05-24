@@ -1,0 +1,56 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader CurvatureBasedMix
+param	color	smoothShader	1 1 1		%read{12,12} %write{2147483647,-1}
+param	color	bumpyShader	0.0500000007 0.0500000007 0.0500000007		%read{13,13} %write{2147483647,-1}
+param	string	curvatureMap	"textures/curvature_test_1.tex"		%read{7,7} %write{2147483647,-1}
+param	point	pointCoord	0 0 0		%read{0,1} %write{2147483647,-1} %derivs
+oparam	color	result	0 0 0		%read{2147483647,-1} %write{12,13}
+local	vector	st	%read{3,6} %write{2,4} %derivs
+local	color	curvatureSample	%read{8,8} %write{7,7}
+local	float	curvature	%read{10,10} %write{8,8}
+local	float	threshold	%read{10,10} %write{9,9}
+const	int	$const1	0		%read{0,8} %write{2147483647,-1}
+temp	float	$tmp1	%read{2,2} %write{0,0} %derivs
+const	int	$const2	1		%read{1,6} %write{2147483647,-1}
+temp	float	$tmp2	%read{2,2} %write{1,1} %derivs
+const	float	$const3	0		%read{2,2} %write{2147483647,-1}
+const	float	$const4	0.5		%read{3,4} %write{2147483647,-1}
+temp	vector	$tmp3	%read{4,4} %write{3,3} %derivs
+temp	float	$tmp4	%read{7,7} %write{5,5} %derivs
+temp	float	$tmp5	%read{7,7} %write{6,6} %derivs
+const	float	$const5	0.300000012		%read{9,9} %write{2147483647,-1}
+temp	int	$tmp6	%read{11,11} %write{10,10}
+code ___main___
+# shaders/curvatureBasedMix.osl:10
+#     vector st = vector(pointCoord.x, pointCoord.y, 0.0);  // Convert pointCoord.x and pointCoord.y into a 2D vector for UVs
+	compref		$tmp1 pointCoord $const1 	%filename{"shaders/curvatureBasedMix.osl"} %line{10} %argrw{"wrr"}
+	compref		$tmp2 pointCoord $const2 	%argrw{"wrr"}
+	vector		st $tmp1 $tmp2 $const3 	%argrw{"wrrr"}
+# shaders/curvatureBasedMix.osl:13
+#     st = st * 0.5 + 0.5;  // Scale and bias to [0,1]
+	mul		$tmp3 st $const4 	%line{13} %argrw{"wrr"}
+	add		st $tmp3 $const4 	%argrw{"wrr"}
+# shaders/curvatureBasedMix.osl:16
+#     color curvatureSample = texture(curvatureMap, st.x, st.y);  // Use st.x and st.y separately as float arguments
+	compref		$tmp4 st $const1 	%line{16} %argrw{"wrr"}
+	compref		$tmp5 st $const2 	%argrw{"wrr"}
+	texture		curvatureSample curvatureMap $tmp4 $tmp5 	%argrw{"wrrr"} %argderivs{2,3}
+# shaders/curvatureBasedMix.osl:18
+#     float curvature = curvatureSample.r;  // Extract the red channel (assuming it's grayscale)
+	compref		curvature curvatureSample $const1 	%line{18} %argrw{"wrr"}
+# shaders/curvatureBasedMix.osl:21
+#     float threshold = 0.3;  // Adjust this value as needed
+	assign		threshold $const5 	%line{21} %argrw{"wr"}
+# shaders/curvatureBasedMix.osl:24
+#     if (curvature < threshold)
+	lt		$tmp6 curvature threshold 	%line{24} %argrw{"wrr"}
+	if		$tmp6 13 14 	%argrw{"r"}
+# shaders/curvatureBasedMix.osl:26
+#         result = smoothShader;  // If curvature is low, apply the smooth shader
+	assign		result smoothShader 	%line{26} %argrw{"wr"}
+# shaders/curvatureBasedMix.osl:30
+#         result = bumpyShader;   // If curvature is high, apply the bumpy shader
+	assign		result bumpyShader 	%line{30} %argrw{"wr"}
+	end

@@ -1,0 +1,18 @@
+shader CurvatureBasedMixExact(
+    color baseColor = color(0.05, 0.05, 0.05),  // Color de goma base
+    color edgeColor = color(1.0, 0.0, 0.0),     // Color especial para el borde
+    string curvatureMap = "",                  // Ruta al mapa de curvatura
+    float edgeValue = 0.627,                   // Valor de tono (R) para el borde
+    float tolerance = 0.01,                    // Margen de error para detección
+    output color result = color(0.0)
+)
+{
+    color tex = texture(curvatureMap, u, v);   // Leer mapa de curvatura
+    float curvature = tex[0];                  // Tomar canal rojo (gris = r=g=b)
+
+    // Si está cerca del valor deseado, aplicar el color especial
+    if (abs(curvature - edgeValue) < tolerance)
+        result = edgeColor;
+    else
+        result = baseColor;
+}

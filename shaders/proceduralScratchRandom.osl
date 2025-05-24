@@ -1,0 +1,24 @@
+shader proceduralScratchRandom(
+    float scale = 80.0,
+    float thickness = 0.01,
+    float noiseAmount = 0.3,
+    float randomness = 1.0,
+    color scratchColor = color(1.0),
+    color baseColor = color(0.1),
+    output color result = 0
+)
+{
+    float u_random = u + noise(P * scale) * randomness;
+    float v_random = v + noise(P * scale * 1.1) * randomness;
+
+    float angle = noise(P * 0.5) * 2.0 * M_PI;  // ángulo aleatorio por punto
+    float cosA = cos(angle);
+    float sinA = sin(angle);
+
+    float coord = u_random * cosA + v_random * sinA;
+
+    float line = sin(coord * scale);
+    float scratchMask = smoothstep(thickness, 0.0, abs(line));
+
+    result = mix(scratchColor, baseColor, scratchMask);
+}

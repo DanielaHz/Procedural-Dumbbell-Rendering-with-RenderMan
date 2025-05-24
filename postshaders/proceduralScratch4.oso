@@ -1,0 +1,71 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader proceduralScratch4
+param	float	scale	50		%read{7,12} %write{2147483647,-1}
+param	float	thickness	0.0199999996		%read{16,16} %write{2147483647,-1}
+param	float	noiseAmount	0.100000001		%read{10,10} %write{2147483647,-1}
+param	float	angle	45		%read{1,1} %write{2147483647,-1}
+param	color	scratchColor	1 1 1		%read{18,18} %write{2147483647,-1}
+param	color	baseColor	0.100000001 0.100000001 0.100000001		%read{18,18} %write{2147483647,-1}
+oparam	color	result	0 0 0		%read{2147483647,-1} %write{18,18}
+global	float	u	%read{3,3} %write{2147483647,-1}
+global	float	v	%read{5,5} %write{2147483647,-1}
+local	float	rad	%read{2,4} %write{1,1}
+local	float	coord	%read{7,11} %write{6,6}
+local	float	distortedCoord	%read{12,12} %write{11,11}
+local	float	line	%read{15,15} %write{14,14}
+local	float	scratchMask	%read{18,18} %write{17,17}
+const	string	$const1	"radians"		%read{0,0} %write{2147483647,-1}
+const	float	$const2	0.0174532924		%read{1,1} %write{2147483647,-1}
+temp	float	$tmp1	%read{3,3} %write{2,2}
+temp	float	$tmp2	%read{6,6} %write{3,3}
+temp	float	$tmp3	%read{5,5} %write{4,4}
+temp	float	$tmp4	%read{6,6} %write{5,5}
+temp	float	$tmp5	%read{10,10} %write{9,9}
+const	string	$const3	"perlin"		%read{9,9} %write{2147483647,-1}
+temp	point	$tmp6	%read{9,9} %write{8,8}
+temp	float	$tmp7	%read{8,8} %write{7,7}
+const	float	$const5	0		%read{8,16} %write{2147483647,-1}
+temp	float	$tmp8	%read{11,11} %write{10,10}
+temp	float	$tmp9	%read{13,13} %write{12,12}
+const	float	$const6	3.14159274		%read{13,13} %write{2147483647,-1}
+temp	float	$tmp10	%read{14,14} %write{13,13}
+const	float	$const7	1		%read{17,17} %write{2147483647,-1}
+temp	float	$tmp11	%read{17,17} %write{16,16}
+temp	float	$tmp12	%read{16,16} %write{15,15}
+code ___main___
+# proceduralScratch4.oso:12
+# <line not found>
+	functioncall	$const1 2 	%filename{"proceduralScratch4.oso"} %line{12} %argrw{"r"}
+# /opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h:65
+# float  radians (float x)  { return x*(M_PI/180.0); }
+	mul		rad angle $const2 	%filename{"/opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h"} %line{65} %argrw{"wrr"}
+# proceduralScratch4.oso:15
+# <line not found>
+	cos		$tmp1 rad 	%filename{"proceduralScratch4.oso"} %line{15} %argrw{"wr"}
+	mul		$tmp2 u $tmp1 	%argrw{"wrr"}
+	sin		$tmp3 rad 	%argrw{"wr"}
+	mul		$tmp4 v $tmp3 	%argrw{"wrr"}
+	add		coord $tmp2 $tmp4 	%argrw{"wrr"}
+# proceduralScratch4.oso:18
+# <line not found>
+	mul		$tmp7 coord scale 	%line{18} %argrw{"wrr"}
+	point		$tmp6 $tmp7 $const5 $const5 	%argrw{"wrrr"}
+	noise		$tmp5 $const3 $tmp6 	%argrw{"wrr"}
+	mul		$tmp8 noiseAmount $tmp5 	%argrw{"wrr"}
+	add		distortedCoord coord $tmp8 	%argrw{"wrr"}
+# proceduralScratch4.oso:21
+# <line not found>
+	mul		$tmp9 distortedCoord scale 	%line{21} %argrw{"wrr"}
+	mul		$tmp10 $tmp9 $const6 	%argrw{"wrr"}
+	sin		line $tmp10 	%argrw{"wr"}
+# proceduralScratch4.oso:24
+# <line not found>
+	abs		$tmp12 line 	%line{24} %argrw{"wr"}
+	smoothstep	$tmp11 $const5 thickness $tmp12 	%argrw{"wrrr"}
+	sub		scratchMask $const7 $tmp11 	%argrw{"wrr"}
+# proceduralScratch4.oso:27
+# <line not found>
+	mix		result baseColor scratchColor scratchMask 	%line{27} %argrw{"wrrr"}
+	end

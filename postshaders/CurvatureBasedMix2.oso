@@ -1,0 +1,73 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader CurvatureBasedMix2
+param	color	smoothShader	1 1 1		%read{12,21} %write{2147483647,-1}
+param	color	blackRubberShader	0.100000001 0.100000001 0.100000001		%read{20,20} %write{2147483647,-1}
+param	string	curvatureMap	"textures/test-2.tex"		%read{5,5} %write{2147483647,-1}
+param	float	thresholdOuter	0.300000012		%read{10,13} %write{2147483647,-1}
+param	float	thresholdInner	0.699999988		%read{16,16} %write{2147483647,-1}
+param	point	Pc	0 0 0		%read{0,1} %write{2147483647,-1} %derivs
+oparam	color	result	0 0 0		%read{2147483647,-1} %write{12,21}
+local	vector	st	%read{3,4} %write{2,2} %derivs
+local	color	curvatureColor	%read{6,6} %write{5,5}
+local	float	curvature	%read{7,16} %write{6,8}
+const	int	$const1	0		%read{0,17} %write{2147483647,-1}
+temp	float	$tmp1	%read{2,2} %write{0,0} %derivs
+const	int	$const2	1		%read{1,4} %write{2147483647,-1}
+temp	float	$tmp2	%read{2,2} %write{1,1} %derivs
+const	float	$const3	0		%read{2,7} %write{2147483647,-1}
+temp	float	$tmp3	%read{5,5} %write{3,3} %derivs
+temp	float	$tmp4	%read{5,5} %write{4,4} %derivs
+temp	float	$tmp5	%read{8,8} %write{7,7}
+const	float	$const4	1		%read{8,8} %write{2147483647,-1}
+const	string	$const5	"Curvature value: %f\n"		%read{9,9} %write{2147483647,-1}
+temp	int	$tmp6	%read{11,11} %write{10,10}
+temp	int	$tmp7	%read{14,14} %write{13,13}
+temp	int	$tmp8	%read{15,19} %write{14,18}
+temp	int	$tmp9	%read{17,17} %write{16,16}
+temp	int	$tmp10	%read{18,18} %write{17,17}
+code ___main___
+# curvatureBasedMix.osl:12
+#     vector st = vector(Pc.x, Pc.y, 0.0);  // Usamos las componentes x e y de P como UVs
+	compref		$tmp1 Pc $const1 	%filename{"curvatureBasedMix.osl"} %line{12} %argrw{"wrr"}
+	compref		$tmp2 Pc $const2 	%argrw{"wrr"}
+	vector		st $tmp1 $tmp2 $const3 	%argrw{"wrrr"}
+# curvatureBasedMix.osl:15
+#     color curvatureColor = texture(curvatureMap, st.x, st.y);  // Usamos las componentes x e y directamente
+	compref		$tmp3 st $const1 	%line{15} %argrw{"wrr"}
+	compref		$tmp4 st $const2 	%argrw{"wrr"}
+	texture		curvatureColor curvatureMap $tmp3 $tmp4 	%argrw{"wrrr"} %argderivs{2,3}
+# curvatureBasedMix.osl:18
+#     float curvature = curvatureColor.r;  // Accedemos solo al canal rojo del color
+	compref		curvature curvatureColor $const1 	%line{18} %argrw{"wrr"}
+# curvatureBasedMix.osl:22
+#     curvature = (curvature - 0.0) / (1.0 - 0.0);  // Normalizar entre 0 y 1 (ajusta estos valores según tu mapa)
+	sub		$tmp5 curvature $const3 	%line{22} %argrw{"wrr"}
+	div		curvature $tmp5 $const4 	%argrw{"wrr"}
+# curvatureBasedMix.osl:25
+#     printf("Curvature value: %f\n", curvature);  // Depuración
+	printf		$const5 curvature 	%line{25} %argrw{"rr"}
+# curvatureBasedMix.osl:28
+#     if (curvature < thresholdOuter)
+	lt		$tmp6 curvature thresholdOuter 	%line{28} %argrw{"wrr"}
+	if		$tmp6 13 22 	%argrw{"r"}
+# curvatureBasedMix.osl:30
+#         result = smoothShader;  // Si la curvatura es baja (por debajo del umbral exterior), aplicamos el shader suave
+	assign		result smoothShader 	%line{30} %argrw{"wr"}
+# curvatureBasedMix.osl:32
+#     else if (curvature >= thresholdOuter && curvature <= thresholdInner)
+	ge		$tmp7 curvature thresholdOuter 	%line{32} %argrw{"wrr"}
+	neq		$tmp8 $tmp7 $const1 	%argrw{"wrr"}
+	if		$tmp8 19 19 	%argrw{"r"}
+	le		$tmp9 curvature thresholdInner 	%argrw{"wrr"}
+	neq		$tmp10 $tmp9 $const1 	%argrw{"wrr"}
+	assign		$tmp8 $tmp10 	%argrw{"wr"}
+	if		$tmp8 21 22 	%argrw{"r"}
+# curvatureBasedMix.osl:34
+#         result = blackRubberShader;   // Si la curvatura está en el rango intermedio (bordes de la mancuerna)
+	assign		result blackRubberShader 	%line{34} %argrw{"wr"}
+# curvatureBasedMix.osl:38
+#         result = smoothShader;   // Si la curvatura es alta (por encima del umbral interior), aplicamos el shader suave
+	assign		result smoothShader 	%line{38} %argrw{"wr"}
+	end

@@ -1,0 +1,36 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader CurvatureBasedMix4
+param	color	baseColor	0.0500000007 0.0500000007 0.0500000007		%read{9,9} %write{2147483647,-1}
+param	color	edgeColor	1 0 0		%read{8,8} %write{2147483647,-1}
+param	color	curvatureMap	1 1 1		%read{0,0} %write{2147483647,-1}
+param	float	edgeMin	0.579999983		%read{1,1} %write{2147483647,-1}
+param	float	edgeMax	0.649999976		%read{4,4} %write{2147483647,-1}
+oparam	color	result	0 0 0		%read{2147483647,-1} %write{8,9}
+local	float	curvature	%read{1,4} %write{0,0}
+const	int	$const1	0		%read{0,5} %write{2147483647,-1}
+temp	int	$tmp1	%read{2,2} %write{1,1}
+temp	int	$tmp2	%read{3,7} %write{2,6}
+temp	int	$tmp3	%read{5,5} %write{4,4}
+temp	int	$tmp4	%read{6,6} %write{5,5}
+code ___main___
+# CurvatureBasedMix4.osl:10
+#     float curvature = curvatureMap[0];  // Usamos el canal rojo
+	compref		curvature curvatureMap $const1 	%filename{"CurvatureBasedMix4.osl"} %line{10} %argrw{"wrr"}
+# CurvatureBasedMix4.osl:12
+#     if (curvature >= edgeMin && curvature <= edgeMax)
+	ge		$tmp1 curvature edgeMin 	%line{12} %argrw{"wrr"}
+	neq		$tmp2 $tmp1 $const1 	%argrw{"wrr"}
+	if		$tmp2 7 7 	%argrw{"r"}
+	le		$tmp3 curvature edgeMax 	%argrw{"wrr"}
+	neq		$tmp4 $tmp3 $const1 	%argrw{"wrr"}
+	assign		$tmp2 $tmp4 	%argrw{"wr"}
+	if		$tmp2 9 10 	%argrw{"r"}
+# CurvatureBasedMix4.osl:13
+#         result = edgeColor;
+	assign		result edgeColor 	%line{13} %argrw{"wr"}
+# CurvatureBasedMix4.osl:15
+#         result = baseColor;
+	assign		result baseColor 	%line{15} %argrw{"wr"}
+	end

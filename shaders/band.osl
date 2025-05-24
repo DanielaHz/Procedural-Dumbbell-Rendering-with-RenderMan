@@ -1,0 +1,11 @@
+shader band (
+	color Cin = 1,
+output	color Cout=0
+	)
+{
+    if(u+v<1)
+	Cout=color ("rgb",0,1,0);
+    else
+	Cout=color ("rgb",1,0,0);
+}
+

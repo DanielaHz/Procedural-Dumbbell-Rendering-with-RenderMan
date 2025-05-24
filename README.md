@@ -13,9 +13,20 @@ uv run python openModel.py
 
 ## Intructions to transform textures
 
+Compiling textures
 ```
 txmake input.exr output.tex
 ```
+
+Finding information of the shader or the plugins 
+```
+oslinfo PxrBump.oso
+```
+```
+txinfo ckdkj.tex
+```
+
+
 
 ## References
 - https://polyhaven.com/a/courtyard

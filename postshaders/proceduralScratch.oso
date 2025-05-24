@@ -1,0 +1,33 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader proceduralScratch
+param	float	scale	80		%read{0,0} %write{2147483647,-1}
+param	float	thickness	0.0500000007		%read{3,3} %write{2147483647,-1}
+param	color	scratchColor	1 1 1		%read{6,6} %write{2147483647,-1}
+param	color	baseColor	0.100000001 0.100000001 0.100000001		%read{6,6} %write{2147483647,-1}
+oparam	color	result	0 0 0		%read{2147483647,-1} %write{6,6}
+global	float	u	%read{0,0} %write{2147483647,-1}
+local	float	line	%read{4,4} %write{2,2}
+local	float	scratchMask	%read{6,6} %write{5,5}
+temp	float	$tmp1	%read{1,1} %write{0,0}
+const	float	$const1	3.14159274		%read{1,1} %write{2147483647,-1}
+temp	float	$tmp2	%read{2,2} %write{1,1}
+const	float	$const2	1		%read{3,3} %write{2147483647,-1}
+temp	float	$tmp3	%read{5,5} %write{3,3}
+temp	float	$tmp4	%read{5,5} %write{4,4}
+code ___main___
+# proceduralScratch.osl:9
+#     float line = sin(u * scale * M_PI); // genera ondas
+	mul		$tmp1 u scale 	%filename{"proceduralScratch.osl"} %line{9} %argrw{"wrr"}
+	mul		$tmp2 $tmp1 $const1 	%argrw{"wrr"}
+	sin		line $tmp2 	%argrw{"wr"}
+# proceduralScratch.osl:10
+#     float scratchMask = step(1.0 - thickness, abs(line)); // activa en líneas delgadas
+	sub		$tmp3 $const2 thickness 	%line{10} %argrw{"wrr"}
+	abs		$tmp4 line 	%argrw{"wr"}
+	step		scratchMask $tmp3 $tmp4 	%argrw{"wrr"}
+# proceduralScratch.osl:11
+#     result = mix(baseColor, scratchColor, scratchMask);
+	mix		result baseColor scratchColor scratchMask 	%line{11} %argrw{"wrrr"}
+	end

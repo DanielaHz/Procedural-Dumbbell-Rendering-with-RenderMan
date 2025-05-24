@@ -1,0 +1,30 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader CurvatureBasedMix3
+param	color	baseColor	0.0500000007 0.0500000007 0.0500000007		%read{3,3} %write{2147483647,-1}
+param	color	edgeColor	1 1 1		%read{3,3} %write{2147483647,-1}
+param	string	curvatureMap	""		%read{0,0} %write{2147483647,-1}
+param	float	thresholdOuter	0.200000003		%read{2,2} %write{2147483647,-1}
+param	float	thresholdInner	0.800000012		%read{2,2} %write{2147483647,-1}
+oparam	color	result	0 0 0		%read{2147483647,-1} %write{3,3}
+global	float	u	%read{0,0} %write{2147483647,-1} %derivs
+global	float	v	%read{0,0} %write{2147483647,-1} %derivs
+local	color	tex	%read{1,1} %write{0,0}
+local	float	curvature	%read{2,2} %write{1,1}
+local	float	mixAmount	%read{3,3} %write{2,2}
+const	int	$const1	0		%read{1,1} %write{2147483647,-1}
+code ___main___
+# CurvatureBasedMix3.osl:11
+#     color tex = texture(curvatureMap, u, v);         // Leer textura de curvatura
+	texture		tex curvatureMap u v 	%filename{"CurvatureBasedMix3.osl"} %line{11} %argrw{"wrrr"} %argderivs{2,3}
+# CurvatureBasedMix3.osl:12
+#     float curvature = tex[0];                        // Usar canal rojo
+	compref		curvature tex $const1 	%line{12} %argrw{"wrr"}
+# CurvatureBasedMix3.osl:14
+#     float mixAmount = smoothstep(thresholdOuter, thresholdInner, curvature);
+	smoothstep	mixAmount thresholdOuter thresholdInner curvature 	%line{14} %argrw{"wrrr"}
+# CurvatureBasedMix3.osl:15
+#     result = mix(baseColor, edgeColor, mixAmount);   // Mezcla basada en curvatura
+	mix		result baseColor edgeColor mixAmount 	%line{15} %argrw{"wrrr"}
+	end

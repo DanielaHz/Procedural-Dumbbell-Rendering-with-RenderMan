@@ -1,0 +1,48 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader mapProjection
+param	color	baseColor	0 0 0		%read{7,7} %write{2147483647,-1}
+param	color	projectionColor	1 1 1		%read{7,7} %write{2147483647,-1}
+param	string	map	""		%read{4,4} %write{2147483647,-1}
+param	float	thresholdLow	0.200000003		%read{6,6} %write{2147483647,-1}
+param	float	thresholdHigh	0.800000012		%read{6,6} %write{2147483647,-1}
+oparam	color	result	0 0 0		%read{2147483647,-1} %write{7,7}
+global	point	P	%read{1,1} %write{2147483647,-1} %derivs
+local	point	Po	%read{2,3} %write{1,1} %derivs
+local	float	s	%read{4,4} %write{2,2} %derivs
+local	float	t	%read{4,4} %write{3,3} %derivs
+local	color	tex	%read{5,5} %write{4,4}
+local	float	val	%read{6,6} %write{5,5}
+local	float	mixAmount	%read{7,7} %write{6,6}
+const	string	$const1	"object"		%read{1,1} %write{2147483647,-1}
+const	string	$const2	"transform"		%read{0,0} %write{2147483647,-1}
+const	string	$const3	"common"		%read{1,1} %write{2147483647,-1}
+const	int	$const4	0		%read{2,5} %write{2147483647,-1}
+const	int	$const5	1		%read{3,3} %write{2147483647,-1}
+code ___main___
+# mapProjection.osl:11
+#     point Po = transform("object", P);
+	functioncall	$const2 2 	%filename{"mapProjection.osl"} %line{11} %argrw{"r"}
+# /opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h:263
+# point  transform (string to, point p)  { return transform("common",to,p); }
+	transform	Po $const3 $const1 P 	%filename{"/opt/pixar/RenderManProServer-26.2/lib/osl/include/stdosl.h"} %line{263} %argrw{"wrrr"}
+# mapProjection.osl:12
+#     float s = Po[0];
+	compref		s Po $const4 	%filename{"mapProjection.osl"} %line{12} %argrw{"wrr"}
+# mapProjection.osl:13
+#     float t = Po[1];
+	compref		t Po $const5 	%line{13} %argrw{"wrr"}
+# mapProjection.osl:16
+#     color tex = texture(map, s, t);
+	texture		tex map s t 	%line{16} %argrw{"wrrr"} %argderivs{2,3}
+# mapProjection.osl:17
+#     float val = tex[0];  // Usamos canal rojo para controlar
+	compref		val tex $const4 	%line{17} %argrw{"wrr"}
+# mapProjection.osl:20
+#     float mixAmount = smoothstep(thresholdLow, thresholdHigh, val);
+	smoothstep	mixAmount thresholdLow thresholdHigh val 	%line{20} %argrw{"wrrr"}
+# mapProjection.osl:23
+#     result = mix(baseColor, projectionColor, mixAmount);
+	mix		result baseColor projectionColor mixAmount 	%line{23} %argrw{"wrrr"}
+	end

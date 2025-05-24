@@ -1,0 +1,12 @@
+shader proceduralScratch(
+    float scale = 80.0,
+    float thickness = 0.05,
+    color scratchColor = color(1.0),       // blanco
+    color baseColor = color(0.1, 0.1, 0.1), // gris oscuro
+    output color result = 0
+)
+{
+    float line = sin(u * scale * M_PI); // genera ondas
+    float scratchMask = step(1.0 - thickness, abs(line)); // activa en líneas delgadas
+    result = mix(baseColor, scratchColor, scratchMask);
+}

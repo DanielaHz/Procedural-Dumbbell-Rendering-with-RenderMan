@@ -1,0 +1,15 @@
+shader CurvatureBasedMix3(
+    color baseColor = color(0.05, 0.05, 0.05),
+    color edgeColor = color(1.0, 1.0, 1.0),
+    string curvatureMap = "",
+    float thresholdOuter = 0.2,
+    float thresholdInner = 0.8,
+    output color result = 0
+)
+{
+    color tex = texture(curvatureMap, s, t);         // Leer textura de curvatura
+    float curvature = tex[0];                        // Usar canal rojo
+
+    float mixAmount = smoothstep(thresholdOuter, thresholdInner, curvature);
+    result = mix(baseColor, edgeColor, mixAmount);   // Mezcla basada en curvatura
+}

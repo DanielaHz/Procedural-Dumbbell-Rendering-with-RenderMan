@@ -1,0 +1,27 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.13.0.@PROJECT_VERSION_TWEAK@"dev"
+# options: 
+shader band
+param	color	Cin	1 1 1		%read{2147483647,-1} %write{2147483647,-1}
+oparam	color	Cout	0 0 0		%read{2147483647,-1} %write{3,4}
+global	float	u	%read{0,0} %write{2147483647,-1}
+global	float	v	%read{0,0} %write{2147483647,-1}
+temp	float	$tmp1	%read{1,1} %write{0,0}
+const	int	$const1	1		%read{1,1} %write{2147483647,-1}
+temp	int	$tmp2	%read{2,2} %write{1,1}
+const	string	$const2	"rgb"		%read{3,4} %write{2147483647,-1}
+const	float	$const4	0		%read{3,4} %write{2147483647,-1}
+const	float	$const5	1		%read{3,4} %write{2147483647,-1}
+code ___main___
+# band.osl:6
+#     if(u+v<1)
+	add		$tmp1 u v 	%filename{"band.osl"} %line{6} %argrw{"wrr"}
+	lt		$tmp2 $tmp1 $const1 	%argrw{"wrr"}
+	if		$tmp2 4 5 	%argrw{"r"}
+# band.osl:7
+# 	Cout=color ("rgb",0,1,0);
+	color		Cout $const2 $const4 $const5 $const4 	%line{7} %argrw{"wrrrr"}
+# band.osl:9
+# 	Cout=color ("rgb",1,0,0);
+	color		Cout $const2 $const5 $const4 $const4 	%line{9} %argrw{"wrrrr"}
+	end
